@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="Delete habit"
+        android:id="@+id/delete_habit"
+        />
+    <item
+        android:title="Clear tasks"
+        android:id="@+id/clear_tasks"
+        />
+    <item
+        android:title="Share tasks"
+        android:id="@+id/share_tasks"
+        />
+    <!-- collapseActionView - элемент будет открываться и закрываться -->
+    <item
+        android:title="New task"
+        android:id="@+id/new_task"
+        android:icon="@drawable/ic_new_task_item"
+        app:actionLayout="@layout/edit_action_layout"
+        app:showAsAction="always|collapseActionView"
+        android:orderInCategory="1"
+        />
+    <item
+        android:title="Save task"
+        android:id="@+id/save_task"
+        android:icon="@drawable/ic_save"
+        app:showAsAction="always"
+        android:orderInCategory="2"
+        />
+</menu>
