@@ -12,77 +12,55 @@ import com.codeliner.habittracker.activities.HabitActivity
 import com.codeliner.habittracker.activities.MainApp
 import com.codeliner.habittracker.databinding.FragmentHabitNamesBinding
 import com.codeliner.habittracker.db.HabitAdapter
+import com.codeliner.habittracker.db.HabitTaskAdapter
 import com.codeliner.habittracker.db.MainViewModel
 import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
 import com.codeliner.habittracker.entities.HabitNameItem
 import com.codeliner.habittracker.utils.TimeManager
 
-//24 копируем класс из NoteFragment
-class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener {
+class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копируем класс из NoteFragment
     private lateinit var binding: FragmentHabitNamesBinding
-    //27 подготавливаем переменную, чтобы инициализировать адаптер
-    private lateinit var adapter: HabitAdapter
+    private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
 
-    //в mainViewModel теперь есть allNotes, insertNote и т.д. из ViewModel
-    private val mainViewModel: MainViewModel by activityViewModels {
-        //context превращаем в класс MainApp (инициализирующий приложение), в нем есть уже база данных
-        MainViewModel.MainViewModelFactory((context?.applicationContext as MainApp).database)
+    private val mainViewModel: MainViewModel by activityViewModels { //в mainViewModel теперь есть allNotes, insertNote и т.д. из ViewModel
+        MainViewModel.MainViewModelFactory((context?.applicationContext as MainApp).database) //context превращаем в класс MainApp (инициализирующий приложение), в нем есть уже база данных
     }
 
-    //24 будем запускать диалог, когда нажали на кнопку New
-    //24 можем не прикреплять слушатель ко всему фрагменту, а добавить в функции
-    override fun onClickNew() {
+    override fun onClickNew() { //24 будем запускать диалог, когда нажали на кнопку New //24 можем не прикреплять слушатель ко всему фрагменту, а добавить в функции
         NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
-            //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
-            override fun onClick(name: String) {
-                //25 когда нажали на кнопку, прежде чем сохранить HabitName класс,
-                // его нужно заполнить как в HabitsListItem
-                val habitName = HabitNameItem(
+            override fun onClick(name: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
+                val habitName = HabitNameItem( //25 когда нажали на кнопку, прежде чем сохранить HabitName класс, // его нужно заполнить как в HabitsListItem
                     null,
-                    name,
-                    TimeManager.getCurrentTime(),
-                    //сколько задач добавлено уже в привычку. так как только создали, то 0
-                0,
-                    //сколько задач уже выполнено
-                0,
+            false,
+                        name,
+                        TimeManager.getCurrentTime(),
+                    0, //сколько задач добавлено уже в привычку. так как только создали, то 0
+                    0, //сколько задач уже выполнено
                     ""
                 )
-                //делаем insert
-                mainViewModel.insertHabit(habitName)
-                //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
-                //25 еще нужно, чтобы мы могли их видеть в фрагменте
-                //25 через observer, который будет следить за изменениями в БД и считывать через MainViewModel
-            }
-            //29 при создании новой привычки, передаем пустоту
-        }, "")
-        //25 для записи в БД нужно записать insert функцию в Dao
-    }
+                mainViewModel.insertHabit(habitName) //делаем insert //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
+            } //25 еще нужно, чтобы мы могли их видеть в фрагменте //25 через observer, который будет следить за изменениями в БД и считывать через MainViewModel
+        }, "") //29 при создании новой привычки, передаем пустоту
+    } //25 для записи в БД нужно записать insert функцию в Dao
 
-    //можем прослушивать и обновлять адаптер
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) { //можем прослушивать и обновлять адаптер
         super.onCreate(savedInstanceState)
-
     }
 
-    //создание view, для управления заметками
-    override fun onCreateView(
+    override fun onCreateView( //создание view, для управления заметками
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
-        // инициализируем FragmentNoteBinding
-        binding = FragmentHabitNamesBinding.inflate(inflater, container, false)
+        binding = FragmentHabitNamesBinding.inflate(inflater, container, false) // инициализируем FragmentNoteBinding
         return binding.root
     }
 
-    //функция запускается, когда все view созданы,
-    //после чего можно инициализировать recyclerview
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) { //функция запускается, когда все view созданы, //после чего можно инициализировать recyclerview
         super.onViewCreated(view, savedInstanceState)
         initRcView()
-        //инициализация observer
-        observer()
+        observer() //инициализация observer
     }
 
     //инициализация recyclerView и адаптера
@@ -140,10 +118,16 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener {
         }, habitNameItem.name) //29 когда обновляем, передаем название, которое было
     }
 
-    override fun onClickItem(habitNameItem: HabitNameItem) { //30 при нажатии на весь элемент, должно открыться активити
-        val i = Intent(activity, HabitActivity::class.java).apply {
-            putExtra(HabitActivity.HABIT_NAME_HAC, habitNameItem)
+    override fun onClickItem(habitNameItem: HabitNameItem, state: Int) {
+        when (state) { //220315 проверяем на какой элемент строки нажали
+            HabitAdapter.CHECK_BOX -> mainViewModel.updateHabitName(habitNameItem) //220315 записываем значение в БД
+            HabitAdapter.NAME -> { //220315 если нажали на название Привычки
+                val i = Intent(activity, HabitActivity::class.java).apply {
+                    putExtra(HabitActivity.HABIT_NAME_HAC, habitNameItem)
+                }
+                startActivity(i)
+            }
         }
-        startActivity(i)
     }
+
 }
