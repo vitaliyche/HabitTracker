@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.codeliner.habittracker.R
 import com.codeliner.habittracker.databinding.HabitLibraryItemBinding
-import com.codeliner.habittracker.databinding.HabitNameItemBinding
 import com.codeliner.habittracker.databinding.HabitTaskItemBinding
 import com.codeliner.habittracker.entities.HabitTaskItem
 
@@ -134,6 +133,7 @@ class HabitTaskAdapter(private val listener: Listener): ListAdapter<HabitTaskIte
     }
 
     interface Listener {
+        //fun deleteItem(id: Int) //220315 сделать удаление записи из БД
         fun onClickItem(habitTaskItem: HabitTaskItem, state: Int)
 
     }

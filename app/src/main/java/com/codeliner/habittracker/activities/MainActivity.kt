@@ -135,5 +135,4 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
     interface AdListener {
         fun onFinish() //57 объявление было просмотрено
     } //57 интерфейс передаем в функцию showInterAd
-
 }

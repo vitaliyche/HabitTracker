@@ -13,7 +13,7 @@ data class HabitTaskItem(
     @ColumnInfo (name = "itemInfo")
     val itemInfo: String = "", //40 изначально пусто, чтобы не прописывать null в EditTaskDialog
     @ColumnInfo (name = "itemChecked")
-    val itemChecked: Boolean = false, //39 не получилось сделать boolean, ошибка
+    val itemChecked: Boolean = false,
     @ColumnInfo (name = "listId") //36 к какой привычке задачи принадлежат
     val listId: Int,
     @ColumnInfo (name = "itemType")
