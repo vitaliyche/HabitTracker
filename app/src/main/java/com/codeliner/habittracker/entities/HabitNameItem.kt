@@ -17,9 +17,11 @@ data class HabitNameItem(
     val time: String,
     @ColumnInfo (name = "allItemCounter")
     val allItemCounter: Int,
+    @ColumnInfo (name = "planDaysPerWeek")
+    val planDaysPerWeek: String,
     @ColumnInfo (name = "checkedItemsCounter")
     val checkedItemsCounter: Int,
     @ColumnInfo (name = "itemsIds")
     val itemsIds: String,
 
-): Serializable
+    ): Serializable

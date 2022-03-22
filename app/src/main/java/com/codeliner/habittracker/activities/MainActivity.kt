@@ -128,8 +128,8 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
         }
     } //55 эту же функцию повторить в SettingsActivity, чтобы тема обновлялась и на экране настроек
 
-    override fun onClick(name: String) { //23 имплементировали функцию, запускается после нажатия кнопки в диалоге
-        Log.d("MyLog", "Name: $name") //23 в этой функции онклик нужно будет сохранять в БД эту привычку,
+    override fun onClick(name: String, days: String) { //23 имплементировали функцию, запускается после нажатия кнопки в диалоге
+        Log.d("mylog", "Name: $name, Days: $days") //23 в этой функции онклик нужно будет сохранять в БД эту привычку,
     } //23 чтобы позже появлялся recycler view, появлялись все названия привычек в виде item-элементов
 
     interface AdListener {

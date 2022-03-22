@@ -31,10 +31,13 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
             tvHabitName.text = habitNameItem.name //получаем доступ к элементам
             tvTime.text = habitNameItem.time
             pBar.max = habitNameItem.allItemCounter//48 максимальный прогресс прогрессбара - это всего задач
-            pBar.progress = habitNameItem.checkedItemsCounter //48 на сколько мы продвинулись, сколько задач выполнили
+            pBar.progress = habitNameItem.checkedItemsCounter //48 на сколько мы продвинулись, сколько раз выполнили
             val colorState = ColorStateList.valueOf(getProgressColorState(habitNameItem, binding.root.context))
             pBar.progressTintList = colorState //48 tintList принимает colorState
             counterCard.backgroundTintList = colorState //48 цвет счетчика меняется в зависимости все или нет задачи выполнили
+
+            //2203 переопределить checkedItemsCounter (0 или 1) и allItemCounter (запланировано дней в неделю)
+
             val counterText = "${habitNameItem.checkedItemsCounter}/${habitNameItem.allItemCounter}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
             tvCounter.text = counterText
             itemView.setOnClickListener { //itemView - при нажатии будем открывать наш список

@@ -12,7 +12,6 @@ import com.codeliner.habittracker.activities.HabitActivity
 import com.codeliner.habittracker.activities.MainApp
 import com.codeliner.habittracker.databinding.FragmentHabitNamesBinding
 import com.codeliner.habittracker.db.HabitAdapter
-import com.codeliner.habittracker.db.HabitTaskAdapter
 import com.codeliner.habittracker.db.MainViewModel
 import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
@@ -22,6 +21,7 @@ import com.codeliner.habittracker.utils.TimeManager
 class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копируем класс из NoteFragment
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
+    private var habitNameItem: HabitNameItem? = null
 
     private val mainViewModel: MainViewModel by activityViewModels { //в mainViewModel теперь есть allNotes, insertNote и т.д. из ViewModel
         MainViewModel.MainViewModelFactory((context?.applicationContext as MainApp).database) //context превращаем в класс MainApp (инициализирующий приложение), в нем есть уже база данных
@@ -29,19 +29,21 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
 
     override fun onClickNew() { //24 будем запускать диалог, когда нажали на кнопку New //24 можем не прикреплять слушатель ко всему фрагменту, а добавить в функции
         NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
-            override fun onClick(name: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
+            override fun onClick(name: String, days: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
                 val habitName = HabitNameItem( //25 когда нажали на кнопку, прежде чем сохранить HabitName класс, // его нужно заполнить как в HabitsListItem
                     null,
             false,
                         name,
                         TimeManager.getCurrentTime(),
                     0, //сколько задач добавлено уже в привычку. так как только создали, то 0
-                    0, //сколько задач уже выполнено
+                    "", //сколько задач уже выполнено
+                    0,
                     ""
                 )
                 mainViewModel.insertHabit(habitName) //делаем insert //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
             } //25 еще нужно, чтобы мы могли их видеть в фрагменте //25 через observer, который будет следить за изменениями в БД и считывать через MainViewModel
-        }, "") //29 при создании новой привычки, передаем пустоту
+        }, "", "") //29 при создании новой привычки, передаем пустоту
+        //saveItemCount()
     } //25 для записи в БД нужно записать insert функцию в Dao
 
     override fun onCreate(savedInstanceState: Bundle?) { //можем прослушивать и обновлять адаптер
@@ -112,10 +114,11 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
 
     override fun editItem(habitNameItem: HabitNameItem) { //29 делаем по аналогии с onClickNew
         NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
-            override fun onClick(name: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
-                mainViewModel.updateHabitName(habitNameItem.copy(name = name)) //перезаписываем название, если пользователь изменил его и нажал кнопку Обновить
+            override fun onClick(name: String, days: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
+                mainViewModel.updateHabitName(habitNameItem.copy(name = name, planDaysPerWeek = habitNameItem.planDaysPerWeek)) //перезаписываем название, если пользователь изменил его и нажал кнопку Обновить
             }
-        }, habitNameItem.name) //29 когда обновляем, передаем название, которое было
+        }, habitNameItem.name, habitNameItem.planDaysPerWeek) //29 когда обновляем, передаем название, которое было
+        //saveItemCount()
     }
 
     override fun onClickItem(habitNameItem: HabitNameItem, state: Int) {
@@ -128,6 +131,16 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
                 startActivity(i)
             }
         }
+    }
+
+    //2203 переопределить allItemCounter и checkedItemsCounter
+    private fun saveItemCounts() { //48 считает количество выполненных задач
+        var checkedItemCounter = 0 //48 чтобы посчитать сколько элементов у нас отмечено
+        val tempTaskItem = habitNameItem?.copy(
+            allItemCounter = adapter.itemCount, //220316 заменить itemCounter на значение days per week //48 сколько всего задач в привычке
+            checkedItemsCounter = checkedItemCounter//220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
+        )
+        mainViewModel.updateHabitName(tempTaskItem!!)
     }
 
 }
