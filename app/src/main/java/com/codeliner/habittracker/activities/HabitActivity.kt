@@ -44,7 +44,7 @@ class HabitActivity : AppCompatActivity(), HabitTaskAdapter.Listener {
             initRcView()
             habitTaskObserver()
             supportActionBar?.setDisplayHomeAsUpEnabled(true)    //00 добавляем стрелку назад
-            //setTitle() //00 не получается установить название привычки в качестве заголовка Активити
+            setTitle(habitNameItemHAC?.name!!)
         }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

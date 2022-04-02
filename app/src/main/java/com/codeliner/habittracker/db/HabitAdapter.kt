@@ -38,7 +38,7 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
 
             //2203 переопределить checkedItemsCounter (0 или 1) и allItemCounter (запланировано дней в неделю)
 
-            val counterText = "${habitNameItem.checkedItemsCounter}/${habitNameItem.allItemCounter}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
+            val counterText = "${habitNameItem.checkedHabitCounter}/${habitNameItem.planDaysPerWeek}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
             tvCounter.text = counterText
             itemView.setOnClickListener { //itemView - при нажатии будем открывать наш список
                 listener.onClickItem(habitNameItem, NAME) //220315 будет открываться список задач
