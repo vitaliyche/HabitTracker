@@ -226,6 +226,7 @@ class HabitActivity : AppCompatActivity(), HabitTaskAdapter.Listener {
         adapterHAc?.currentList?.forEach {
             if(it.itemChecked) checkedItemCounter++ //48 если отмечено, увеличиваем счетчик на 1
         }
+
         val tempTaskItem = habitNameItemHAC?.copy(
             //220316 заменить itemCounter на значение days per week
             allItemCounter = adapterHAc?.itemCount!!,  //48 сколько всего задач в привычке

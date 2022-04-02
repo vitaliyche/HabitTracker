@@ -38,12 +38,12 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
                     0, //сколько задач добавлено уже в привычку. так как только создали, то 0
                     "", //сколько задач уже выполнено
                     0,
+                    0,
                     ""
                 )
                 mainViewModel.insertHabit(habitName) //делаем insert //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
             } //25 еще нужно, чтобы мы могли их видеть в фрагменте //25 через observer, который будет следить за изменениями в БД и считывать через MainViewModel
         }, "", "") //29 при создании новой привычки, передаем пустоту
-        //saveItemCount()
     } //25 для записи в БД нужно записать insert функцию в Dao
 
     override fun onCreate(savedInstanceState: Bundle?) { //можем прослушивать и обновлять адаптер
@@ -134,13 +134,16 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
     }
 
     //2203 переопределить allItemCounter и checkedItemsCounter
-    private fun saveItemCounts() { //48 считает количество выполненных задач
-        var checkedItemCounter = 0 //48 чтобы посчитать сколько элементов у нас отмечено
-        val tempTaskItem = habitNameItem?.copy(
-            allItemCounter = adapter.itemCount, //220316 заменить itemCounter на значение days per week //48 сколько всего задач в привычке
-            checkedItemsCounter = checkedItemCounter//220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
+    private fun saveHabitCount() { //48 считает количество выполненных задач
+        var checkedCounter = 0 //чтобы посчитать выполненные привычки
+        adapter?.currentList?.forEach {
+            if(it.habitChecked) checkedCounter++ //0322 если отмечено, увеличиваем счетчик на 1
+        }
+        val tempHabitItem = habitNameItem?.copy(
+            //planDaysPerWeek = adapter.planDaysPerWeek, //220316 заменить itemCounter на значение days per week //48 сколько всего задач в привычке
+            checkedHabitCounter = checkedCounter//220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
         )
-        mainViewModel.updateHabitName(tempTaskItem!!)
+        mainViewModel.updateHabitName(tempHabitItem!!)
     }
 
 }

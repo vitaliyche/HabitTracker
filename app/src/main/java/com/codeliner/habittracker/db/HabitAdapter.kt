@@ -46,11 +46,11 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
             ibDelete.setOnClickListener{ //28 если нажмем на кнопку Удалить, то запускается слушатель,
                 listener.deleteItem(habitNameItem.id!!) //28 который возвращает от каждого элемента идентификатор
             } //28 и по этому идентификатору мы можем удалить из БД данный элемент
-            chBoxHabit.isChecked = habitNameItem.itemChecked
+            chBoxHabit.isChecked = habitNameItem.habitChecked
             setPaintFlagAndColor(binding) //39 запускаем функцию перечеркивания текста один раз, когда обновляется адаптер
-            chBoxHabit.setOnClickListener { //38 слушаем нажатие чекбокса выполнения задачи
-                listener.onClickItem(habitNameItem.copy(itemChecked = chBoxHabit.isChecked), CHECK_BOX) //39 записываем true или false
-            } //39 для сохранения состояния нужно сделать апдейт в БД Dao
+            chBoxHabit.setOnClickListener { //0322 слушаем нажатие чекбокса выполнения привычки
+                listener.onClickItem (habitNameItem.copy(habitChecked = chBoxHabit.isChecked, checkedHabitCounter = habitNameItem.checkedHabitCounter+1), CHECK_BOX) //0322 записываем true или false
+            } //0322 для сохранения состояния нужно сделать апдейт в БД Dao
             ibEdit.setOnClickListener{ //29 при нажатии на кнопку edit запускается listener // и editItem интерфейс, который нужно добавить во фрагмент
                 listener.editItem(habitNameItem) //29 передается весь элемент
             }
