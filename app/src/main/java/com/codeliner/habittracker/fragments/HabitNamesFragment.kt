@@ -36,7 +36,7 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
                         name,
                         TimeManager.getCurrentTime(),
                     0, //сколько задач добавлено уже в привычку. так как только создали, то 0
-                    "", //сколько задач уже выполнено
+                    days, //сколько задач уже выполнено
                     0,
                     0,
                     ""
@@ -115,7 +115,7 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
     override fun editItem(habitNameItem: HabitNameItem) { //29 делаем по аналогии с onClickNew
         NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
             override fun onClick(name: String, days: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
-                mainViewModel.updateHabitName(habitNameItem.copy(name = name, planDaysPerWeek = habitNameItem.planDaysPerWeek)) //перезаписываем название, если пользователь изменил его и нажал кнопку Обновить
+                mainViewModel.updateHabitName(habitNameItem.copy(name = name, planDaysPerWeek = days)) //перезаписываем название, если пользователь изменил его и нажал кнопку Обновить
             }
         }, habitNameItem.name, habitNameItem.planDaysPerWeek) //29 когда обновляем, передаем название, которое было
         //saveItemCount()
