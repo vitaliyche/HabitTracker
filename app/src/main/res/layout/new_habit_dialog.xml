@@ -36,21 +36,12 @@
                 android:hint="@string/habit_name"
                 android:inputType="textPersonName" />
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center"
-                android:text="Number of days per week"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
             <EditText
-                android:id="@+id/editTextNumber"
+                android:id="@+id/edDaysPerWeek"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
+                android:hint="Days per week"
                 android:inputType="number" />
 
             <Button

@@ -7,8 +7,8 @@
     <string name="new_item">New</string>
     <string name="title_hint">Title</string>
     <string name="description_hint">Description</string>
-    <string name="new_habit">New habit name</string>
-    <string name="edit_habit_strings">Edit habit name</string>
+    <string name="new_habit">New habit</string>
+    <string name="edit_habit_strings">Edit habit</string>
     <string name="habit_name">Habit name</string>
     <string name="create_habit">Create Habit</string>
     <string name="delete_item">Do you want delete this item?</string>

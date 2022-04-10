@@ -9,17 +9,21 @@ import java.io.Serializable
 data class HabitNameItem(
     @PrimaryKey (autoGenerate = true)
     val id: Int?,
-    @ColumnInfo (name = "itemChecked")
-    val itemChecked: Boolean = false,
+    @ColumnInfo (name = "habitChecked")
+    val habitChecked: Boolean = false,
     @ColumnInfo (name = "name")
     val name: String,
     @ColumnInfo (name = "time")
     val time: String,
     @ColumnInfo (name = "allItemCounter")
     val allItemCounter: Int,
+    @ColumnInfo (name = "planDaysPerWeek")
+    val planDaysPerWeek: String,
     @ColumnInfo (name = "checkedItemsCounter")
     val checkedItemsCounter: Int,
+    @ColumnInfo (name = "checkedHabitCounter")
+    val checkedHabitCounter: Int,
     @ColumnInfo (name = "itemsIds")
     val itemsIds: String,
 
-): Serializable
+    ): Serializable

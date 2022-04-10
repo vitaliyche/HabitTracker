@@ -226,9 +226,12 @@ class HabitActivity : AppCompatActivity(), HabitTaskAdapter.Listener {
         adapterHAc?.currentList?.forEach {
             if(it.itemChecked) checkedItemCounter++ //48 если отмечено, увеличиваем счетчик на 1
         }
+
         val tempTaskItem = habitNameItemHAC?.copy(
-            allItemCounter = adapterHAc?.itemCount!!, //48 сколько всего задач в привычке
-            checkedItemsCounter = checkedItemCounter//48 сколько задач отмечено выполненными
+            //220316 заменить itemCounter на значение days per week
+            allItemCounter = adapterHAc?.itemCount!!,  //48 сколько всего задач в привычке
+            //220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
+            checkedItemsCounter = checkedItemCounter
         )
         mainViewModelHAC.updateHabitName(tempTaskItem!!)
     }

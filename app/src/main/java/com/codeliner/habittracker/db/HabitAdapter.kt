@@ -31,10 +31,13 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
             tvHabitName.text = habitNameItem.name //получаем доступ к элементам
             tvTime.text = habitNameItem.time
             pBar.max = habitNameItem.allItemCounter//48 максимальный прогресс прогрессбара - это всего задач
-            pBar.progress = habitNameItem.checkedItemsCounter //48 на сколько мы продвинулись, сколько задач выполнили
+            pBar.progress = habitNameItem.checkedItemsCounter //48 на сколько мы продвинулись, сколько раз выполнили
             val colorState = ColorStateList.valueOf(getProgressColorState(habitNameItem, binding.root.context))
             pBar.progressTintList = colorState //48 tintList принимает colorState
             counterCard.backgroundTintList = colorState //48 цвет счетчика меняется в зависимости все или нет задачи выполнили
+
+            //2203 переопределить checkedItemsCounter (0 или 1) и allItemCounter (запланировано дней в неделю)
+
             val counterText = "${habitNameItem.checkedItemsCounter}/${habitNameItem.allItemCounter}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
             tvCounter.text = counterText
             itemView.setOnClickListener { //itemView - при нажатии будем открывать наш список
@@ -43,11 +46,11 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
             ibDelete.setOnClickListener{ //28 если нажмем на кнопку Удалить, то запускается слушатель,
                 listener.deleteItem(habitNameItem.id!!) //28 который возвращает от каждого элемента идентификатор
             } //28 и по этому идентификатору мы можем удалить из БД данный элемент
-            chBoxHabit.isChecked = habitNameItem.itemChecked
+            chBoxHabit.isChecked = habitNameItem.habitChecked
             setPaintFlagAndColor(binding) //39 запускаем функцию перечеркивания текста один раз, когда обновляется адаптер
-            chBoxHabit.setOnClickListener { //38 слушаем нажатие чекбокса выполнения задачи
-                listener.onClickItem(habitNameItem.copy(itemChecked = chBoxHabit.isChecked), CHECK_BOX) //39 записываем true или false
-            } //39 для сохранения состояния нужно сделать апдейт в БД Dao
+            chBoxHabit.setOnClickListener { //0322 слушаем нажатие чекбокса выполнения привычки
+                listener.onClickItem (habitNameItem.copy(habitChecked = chBoxHabit.isChecked, checkedHabitCounter = habitNameItem.checkedHabitCounter+1), CHECK_BOX) //0322 записываем true или false
+            } //0322 для сохранения состояния нужно сделать апдейт в БД Dao
             ibEdit.setOnClickListener{ //29 при нажатии на кнопку edit запускается listener // и editItem интерфейс, который нужно добавить во фрагмент
                 listener.editItem(habitNameItem) //29 передается весь элемент
             }
