@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.codeliner.habittracker.activities.HabitActivity
 import com.codeliner.habittracker.activities.MainApp
 import com.codeliner.habittracker.databinding.FragmentHabitNamesBinding
@@ -17,8 +19,12 @@ import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
 import com.codeliner.habittracker.entities.HabitNameItem
 import com.codeliner.habittracker.utils.TimeManager
+import java.util.*
+import kotlin.collections.ArrayList
 
-class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копируем класс из NoteFragment
+class HabitNamesFragment : BaseFragment(),
+    HabitAdapter.Listener { //24 копируем класс из NoteFragment
+    private lateinit var items: ArrayList<String>
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
     private var habitNameItem: HabitNameItem? = null
@@ -29,18 +35,22 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
 
     override fun onClickNew() { //24 будем запускать диалог, когда нажали на кнопку New //24 можем не прикреплять слушатель ко всему фрагменту, а добавить в функции
         NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
-            override fun onClick(name: String, days: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
-                val habitName = HabitNameItem( //25 когда нажали на кнопку, прежде чем сохранить HabitName класс, // его нужно заполнить как в HabitsListItem
-                    null,
-            false,
+            override fun onClick(
+                name: String,
+                days: String
+            ) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
+                val habitName =
+                    HabitNameItem( //25 когда нажали на кнопку, прежде чем сохранить HabitName класс, // его нужно заполнить как в HabitsListItem
+                        null,
+                        false,
                         name,
                         TimeManager.getCurrentTime(),
-                    0, //сколько задач добавлено уже в привычку. так как только создали, то 0
-                    days, //сколько задач уже выполнено
-                    0,
-                    0,
-                    ""
-                )
+                        0, //сколько задач добавлено уже в привычку. так как только создали, то 0
+                        days, //сколько задач уже выполнено
+                        0,
+                        0,
+                        ""
+                    )
                 mainViewModel.insertHabit(habitName) //делаем insert //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
             } //25 еще нужно, чтобы мы могли их видеть в фрагменте //25 через observer, который будет следить за изменениями в БД и считывать через MainViewModel
         }, "", "") //29 при создании новой привычки, передаем пустоту
@@ -55,11 +65,18 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
         savedInstanceState: Bundle?
     ): View {
 
-        binding = FragmentHabitNamesBinding.inflate(inflater, container, false) // инициализируем FragmentNoteBinding
+        binding = FragmentHabitNamesBinding.inflate(
+            inflater,
+            container,
+            false
+        ) // инициализируем FragmentNoteBinding
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) { //функция запускается, когда все view созданы, //после чего можно инициализировать recyclerview
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) { //функция запускается, когда все view созданы, //после чего можно инициализировать recyclerview
         super.onViewCreated(view, savedInstanceState)
         initRcView()
         observer() //инициализация observer
@@ -84,14 +101,14 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
             //25 и здесь будет появляться новый элемент, редактироваться или удаляться, если удаляем
             //27 it - новый список, который пришел
             adapter.submitList(it)
-            binding.tvEmptyHabits.visibility = if(it.isEmpty()) { //37 если список пустой
+            binding.tvEmptyHabits.visibility = if (it.isEmpty()) { //37 если список пустой
                 View.VISIBLE //37 нужно показать tvEmptyHabits (написано слово Empty)
             } else { //37 если список не пустой
                 View.GONE //37 то спрятать textView
             }
         }
         //25 нужно добавлять recycler view, adapter
-    //25 и разметку для отдельного элемента, с помощью которого будем заполнять этот список
+        //25 и разметку для отдельного элемента, с помощью которого будем заполнять этот список
         //25 в разметке - название, время, прогресс бар (сколько задач выполнено и сколько осталось)
         //25 и счетчик - сколько задач выполнено и сколько задач в списке
         //25 когда все задачи выполнены, прогрес бар становится зеленым
@@ -105,19 +122,35 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
     }
 
     override fun deleteItem(id: Int) { //28 имплементируем deleteItem и onClickItem
-        DeleteDialog.showDialog(context as AppCompatActivity, object : DeleteDialog.Listener { //28 context может быть null, поэтому укажем его как AppCompatActivity
-            override fun onClick() { //28 имплементируем onClick
-                mainViewModel.deleteHabit(id, true)
-            } //28 нажали на delete в нашем элементе из списка, запускается диалог,
-        }) //28 который спрашивает хотим ли мы на самом деле удалить
+        DeleteDialog.showDialog(
+            context as AppCompatActivity,
+            object :
+                DeleteDialog.Listener { //28 context может быть null, поэтому укажем его как AppCompatActivity
+                override fun onClick() { //28 имплементируем onClick
+                    mainViewModel.deleteHabit(id, true)
+                } //28 нажали на delete в нашем элементе из списка, запускается диалог,
+            }) //28 который спрашивает хотим ли мы на самом деле удалить
     } //28 если жмем на кнопку Да, то запускается onClick и запускается удаление элемента
 
     override fun editItem(habitNameItem: HabitNameItem) { //29 делаем по аналогии с onClickNew
-        NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
-            override fun onClick(name: String, days: String) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
-                mainViewModel.updateHabitName(habitNameItem.copy(name = name, planDaysPerWeek = days)) //перезаписываем название, если пользователь изменил его и нажал кнопку Обновить
-            }
-        }, habitNameItem.name, habitNameItem.planDaysPerWeek) //29 когда обновляем, передаем название, которое было
+        NewHabitDialog.showDialog(
+            activity as AppCompatActivity,
+            object : NewHabitDialog.Listener {
+                override fun onClick(
+                    name: String,
+                    days: String
+                ) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
+                    mainViewModel.updateHabitName(
+                        habitNameItem.copy(
+                            name = name,
+                            planDaysPerWeek = days
+                        )
+                    ) //перезаписываем название, если пользователь изменил его и нажал кнопку Обновить
+                }
+            },
+            habitNameItem.name,
+            habitNameItem.planDaysPerWeek
+        ) //29 когда обновляем, передаем название, которое было
         //saveItemCount()
     }
 
@@ -137,7 +170,7 @@ class HabitNamesFragment : BaseFragment(), HabitAdapter.Listener { //24 копи
     private fun saveHabitCount() { //48 считает количество выполненных задач
         var checkedCounter = 0 //чтобы посчитать выполненные привычки
         adapter?.currentList?.forEach {
-            if(it.habitChecked) checkedCounter++ //0322 если отмечено, увеличиваем счетчик на 1
+            if (it.habitChecked) checkedCounter++ //0322 если отмечено, увеличиваем счетчик на 1
         }
         val tempHabitItem = habitNameItem?.copy(
             //planDaysPerWeek = adapter.planDaysPerWeek, //220316 заменить itemCounter на значение days per week //48 сколько всего задач в привычке
