@@ -19,15 +19,17 @@ import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
 import com.codeliner.habittracker.entities.HabitNameItem
 import com.codeliner.habittracker.utils.TimeManager
+import kotlinx.android.synthetic.main.fragment_habit_names.*
+import kotlinx.android.synthetic.main.habit_name_item.*
 import java.util.*
-import kotlin.collections.ArrayList
 
 class HabitNamesFragment : BaseFragment(),
     HabitAdapter.Listener { //24 копируем класс из NoteFragment
-    private lateinit var items: ArrayList<String>
+    //private var adaptor: HabitAdapter? = null
+    var items = arrayListOf(tvHabitName)
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
-    private var habitNameItem: HabitNameItem? = null
+    //private var habitNameItem: HabitNameItem? = null
 
     private val mainViewModel: MainViewModel by activityViewModels { //в mainViewModel теперь есть allNotes, insertNote и т.д. из ViewModel
         MainViewModel.MainViewModelFactory((context?.applicationContext as MainApp).database) //context превращаем в класс MainApp (инициализирующий приложение), в нем есть уже база данных
@@ -56,9 +58,31 @@ class HabitNamesFragment : BaseFragment(),
         }, "", "") //29 при создании новой привычки, передаем пустоту
     } //25 для записи в БД нужно записать insert функцию в Dao
 
-    override fun onCreate(savedInstanceState: Bundle?) { //можем прослушивать и обновлять адаптер
-        super.onCreate(savedInstanceState)
+    private var simplecallback = object : ItemTouchHelper.SimpleCallback(
+        ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.START
+                or ItemTouchHelper.END, 0) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            val startPosition = viewHolder.adapterPosition // start position
+            val endPosition = target.adapterPosition //endPosition
+            Collections.swap(items, startPosition, endPosition)
+            adapter.notifyItemMoved(startPosition,endPosition) //notify the adapter about item moved
+            //return true
+            return false
+        } //this is for the drag and drop feature
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            //swipe to delete feature
+        }
     }
+
+//    override fun onCreate(savedInstanceState: Bundle?) { //можем прослушивать и обновлять адаптер
+//        super.onCreate(savedInstanceState)
+//        //initRcView()
+//    }
 
     override fun onCreateView( //создание view, для управления заметками
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,6 +116,11 @@ class HabitNamesFragment : BaseFragment(),
         adapter = HabitAdapter(this@HabitNamesFragment)
         //27 адаптер нужно подключить к нашему recycler view
         rcView.adapter = adapter
+
+        val recyclerView : RecyclerView = rcView//findViewById (R.id.rcView)
+        //rcView.layoutManager = LinearLayoutManager(activity)
+        val itemTouchHelper = ItemTouchHelper(simplecallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     //25 функция запускается каждый раз, когда есть изменения в таблице для названий Привычек
@@ -167,16 +196,16 @@ class HabitNamesFragment : BaseFragment(),
     }
 
     //2203 переопределить allItemCounter и checkedItemsCounter
-    private fun saveHabitCount() { //48 считает количество выполненных задач
-        var checkedCounter = 0 //чтобы посчитать выполненные привычки
-        adapter?.currentList?.forEach {
-            if (it.habitChecked) checkedCounter++ //0322 если отмечено, увеличиваем счетчик на 1
-        }
-        val tempHabitItem = habitNameItem?.copy(
-            //planDaysPerWeek = adapter.planDaysPerWeek, //220316 заменить itemCounter на значение days per week //48 сколько всего задач в привычке
-            checkedHabitCounter = checkedCounter//220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
-        )
-        mainViewModel.updateHabitName(tempHabitItem!!)
-    }
+//    private fun saveHabitCount() { //48 считает количество выполненных задач
+//        var checkedCounter = 0 //чтобы посчитать выполненные привычки
+//        adapter.currentList.forEach {
+//            if (it.habitChecked) checkedCounter++ //0322 если отмечено, увеличиваем счетчик на 1
+//        }
+//        val tempHabitItem = habitNameItem?.copy(
+//            //planDaysPerWeek = adapter.planDaysPerWeek, //220316 заменить itemCounter на значение days per week //48 сколько всего задач в привычке
+//            checkedHabitCounter = checkedCounter//220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
+//        )
+//        mainViewModel.updateHabitName(tempHabitItem!!)
+//    }
 
 }

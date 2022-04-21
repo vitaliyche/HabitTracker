@@ -26,8 +26,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
-    private var adaptor: HabitAdapter? = null
-    private lateinit var items: ArrayList<String>
     lateinit var binding: ActivityMainBinding
     private lateinit var defPref: SharedPreferences
     private var currentMenuItemId = R.id.habits_list //54 это id нижнего меню, по умолчанию habits_list
@@ -36,26 +34,6 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
     private var adShowCounter = 0 //57 счетчик нажатий для показа Interstitial рекламы
     private var adShowCounterMax = 2 //57 количество нажатий для показа Interstitial рекламы
     private lateinit var pref: SharedPreferences
-
-    val simplecallback = object : ItemTouchHelper.SimpleCallback(
-        ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.START
-                or ItemTouchHelper.END, 0){
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-            val fromPosition = viewHolder.adapterPosition // start position
-            val toPosition = target.adapterPosition //endPosition
-            Collections.swap(items, fromPosition, toPosition)
-            adaptor?.notifyItemMoved(fromPosition,toPosition) //notify the adapter about item moved
-            return false
-        } //this is for the drag and drop feature
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            //swipe to delete feauture
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         defPref = PreferenceManager.getDefaultSharedPreferences(this)//55 инициализация настроек
@@ -68,11 +46,6 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
         FragmentManager.setFragment(HabitNamesFragment.newInstance(), this) //24 фрагмент, который отображается при запуске приложения
         setBottomNavListener() //запуск функции
         if (!pref.getBoolean(BillingManager.REMOVE_ADS_KEY, false)) loadInterAd() //61 если записано false (нет покупки), то реклама запускается
-
-        val recyclerView : RecyclerView = findViewById (R.id.rcView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        val itemTouchHelper = ItemTouchHelper(simplecallback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 
