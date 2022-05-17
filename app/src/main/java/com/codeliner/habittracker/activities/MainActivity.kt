@@ -17,6 +17,7 @@ import com.codeliner.habittracker.settings.SettingsActivity
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import java.util.*
 
 class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
     lateinit var binding: ActivityMainBinding
@@ -31,7 +32,6 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
     override fun onCreate(savedInstanceState: Bundle?) {
         defPref = PreferenceManager.getDefaultSharedPreferences(this)//55 инициализация настроек
         setTheme(getSelectedTheme()) //55 чтобы тема обновилась, нужно запускать функцию перед super.onCreate, до выбора экрана
-
         super.onCreate(savedInstanceState)
         pref = getSharedPreferences(BillingManager.MAIN_PREF, MODE_PRIVATE) //61 константа MODE_PRIVATE уже есть в активити, поэтому пишем напрямую, без контекста
         binding = ActivityMainBinding.inflate(layoutInflater) //инициализация binding, подключение разметки к активити
@@ -41,6 +41,13 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
         setBottomNavListener() //запуск функции
         if (!pref.getBoolean(BillingManager.REMOVE_ADS_KEY, false)) loadInterAd() //61 если записано false (нет покупки), то реклама запускается
     }
+
+//    private fun habitCheckedOff(startDate: Int) {
+//        var checkedOffHabits: Boolean = true
+//        if(Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - startDate !=0) {
+//            checkedOffHabits = false
+//        } else checkedOffHabits = true
+//    }
 
     private fun loadInterAd() {
         val request = AdRequest.Builder().build() //57 создали запрос на получение рекламы

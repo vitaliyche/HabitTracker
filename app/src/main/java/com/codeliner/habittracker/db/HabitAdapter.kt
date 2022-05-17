@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.codeliner.habittracker.R
 import com.codeliner.habittracker.databinding.HabitNameItemBinding
 import com.codeliner.habittracker.entities.HabitNameItem
+import java.util.*
 
 class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, HabitAdapter.ItemHolder>(ItemComparator()) { //добавили listener, который нужно передать в setData
 
@@ -49,11 +50,27 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
             chBoxHabit.isChecked = habitNameItem.habitChecked
             setPaintFlagAndColor(binding) //39 запускаем функцию перечеркивания текста один раз, когда обновляется адаптер
             chBoxHabit.setOnClickListener { //0322 слушаем нажатие чекбокса выполнения привычки
-                listener.onClickItem (habitNameItem.copy(habitChecked = chBoxHabit.isChecked, checkedHabitCounter = habitNameItem.checkedHabitCounter+1), CHECK_BOX) //0322 записываем true или false
+                if(chBoxHabit.isChecked) {
+                    listener.onClickItem (habitNameItem.copy(
+                        habitChecked = chBoxHabit.isChecked,
+                        checkedHabitCounter = habitNameItem.checkedHabitCounter+1,
+                        checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR-1)),
+                        CHECK_BOX) //0322 записываем true или false
+                } else {
+                    listener.onClickItem (habitNameItem.copy(
+                        habitChecked = chBoxHabit.isChecked,
+                        checkedHabitCounter = habitNameItem.checkedHabitCounter-1),
+                        CHECK_BOX) //0322 записываем true или false
+                }//нужно проверить, что непрочекано, только тогда добавляем+1
             } //0322 для сохранения состояния нужно сделать апдейт в БД Dao
             ibEdit.setOnClickListener{ //29 при нажатии на кнопку edit запускается listener // и editItem интерфейс, который нужно добавить во фрагмент
                 listener.editItem(habitNameItem) //29 передается весь элемент
             }
+
+//            //обнулить галочки, если день отличается от дня, в котором эти галочки были установлены
+//            val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+//            if (checkedHa)
+
         }
 
         private fun getProgressColorState(item: HabitNameItem, context: Context): Int { //48 цвет для прогрессбара
