@@ -19,21 +19,18 @@ import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
 import com.codeliner.habittracker.entities.HabitNameItem
 import com.codeliner.habittracker.utils.TimeManager
-import kotlinx.android.synthetic.main.fragment_habit_names.*
 import kotlinx.android.synthetic.main.habit_name_item.*
 import java.util.*
 
-class HabitNamesFragment : BaseFragment(),
-    HabitAdapter.Listener { //24 копируем класс из NoteFragment
-    //private var adaptor: HabitAdapter? = null
+class HabitNamesFragment : BaseFragment(), //24 копируем класс из NoteFragment
+    HabitAdapter.Listener {
     var items = arrayListOf(tvHabitName)
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
-    //private var habitNameItem: HabitNameItem? = null
 
-    private val mainViewModel: MainViewModel by activityViewModels { //в mainViewModel теперь есть allNotes, insertNote и т.д. из ViewModel
-        MainViewModel.MainViewModelFactory((context?.applicationContext as MainApp).database) //context превращаем в класс MainApp (инициализирующий приложение), в нем есть уже база данных
-    }
+    private val mainViewModel: MainViewModel by activityViewModels {
+        MainViewModel.MainViewModelFactory((context?.applicationContext as MainApp).database) //в mainViewModel теперь есть allNotes, insertNote и т.д. из ViewModel
+    } //context превращаем в класс MainApp (инициализирующий приложение), в нем есть уже база данных
 
     override fun onClickNew() { //24 будем запускать диалог, когда нажали на кнопку New //24 можем не прикреплять слушатель ко всему фрагменту, а добавить в функции
         NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
@@ -41,8 +38,7 @@ class HabitNamesFragment : BaseFragment(),
                 name: String,
                 days: String
             ) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
-                val habitName =
-                    HabitNameItem( //25 когда нажали на кнопку, прежде чем сохранить HabitName класс, // его нужно заполнить как в HabitsListItem
+                val habitName = HabitNameItem( //25 когда нажали на кнопку, прежде чем сохранить HabitName класс, // его нужно заполнить как в HabitsListItem
                         null,
                         false,
                         name,
@@ -51,6 +47,7 @@ class HabitNamesFragment : BaseFragment(),
                         days, //сколько задач уже выполнено
                         0,
                         0,
+                        0,//Calendar.getInstance().get(Calendar.DAY_OF_YEAR),
                         ""
                     )
                 mainViewModel.insertHabit(habitName) //делаем insert //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
@@ -70,7 +67,6 @@ class HabitNamesFragment : BaseFragment(),
             val endPosition = target.adapterPosition //endPosition
             Collections.swap(items, startPosition, endPosition)
             adapter.notifyItemMoved(startPosition,endPosition) //notify the adapter about item moved
-            //return true
             return false
         } //this is for the drag and drop feature
 
@@ -79,45 +75,39 @@ class HabitNamesFragment : BaseFragment(),
         }
     }
 
-//    override fun onCreate(savedInstanceState: Bundle?) { //можем прослушивать и обновлять адаптер
-//        super.onCreate(savedInstanceState)
-//        //initRcView()
-//    }
-
     override fun onCreateView( //создание view, для управления заметками
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        binding = FragmentHabitNamesBinding.inflate(
-            inflater,
-            container,
-            false
-        ) // инициализируем FragmentNoteBinding
+        binding = FragmentHabitNamesBinding.inflate(inflater, container, false) // инициализируем FragmentNoteBinding
         return binding.root
     }
 
     override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) { //функция запускается, когда все view созданы, //после чего можно инициализировать recyclerview
+        view: View, savedInstanceState: Bundle? //функция запускается, когда все view созданы, //после чего можно инициализировать recyclerview
+    ) {
         super.onViewCreated(view, savedInstanceState)
         initRcView()
         observer() //инициализация observer
+
+        // должно типа обнулять галочки, но не обнуляет
+//        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+//        adapter.currentList.forEach {
+//            if (it.checkedHabitDay != today) {
+//                it.checkedHabitDay = today
+//                it.habitChecked = false
+//                //mainViewModel.insertHabit()
+//            }
+//        }
     }
 
-    //инициализация recyclerView и адаптера
-    //binding, чтобы напрямую использовать идентификатор
+    //инициализация recyclerView и адаптера //binding, чтобы напрямую использовать идентификатор
     private fun initRcView() = with(binding) {
-        //27 this не можем передать, потому что binding и фрагмент,
-        //27 поэтому передаем activity, потому что во фрагменте есть активити
-        rcView.layoutManager = LinearLayoutManager(activity)
-        //27 инициализируем адаптер
-        adapter = HabitAdapter(this@HabitNamesFragment)
-        //27 адаптер нужно подключить к нашему recycler view
-        rcView.adapter = adapter
+        rcView.layoutManager = LinearLayoutManager(activity) //27 this не можем передать, потому что binding и фрагмент, //27 поэтому передаем activity, потому что во фрагменте есть активити
+        adapter = HabitAdapter(this@HabitNamesFragment) //27 инициализируем адаптер
+        rcView.adapter = adapter //27 адаптер нужно подключить к нашему recycler view
 
-        val recyclerView : RecyclerView = rcView//findViewById (R.id.rcView)
+        val recyclerView : RecyclerView = rcView //findViewById (R.id.rcView)
         //rcView.layoutManager = LinearLayoutManager(activity)
         val itemTouchHelper = ItemTouchHelper(simplecallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
@@ -195,17 +185,14 @@ class HabitNamesFragment : BaseFragment(),
         }
     }
 
-    //2203 переопределить allItemCounter и checkedItemsCounter
-//    private fun saveHabitCount() { //48 считает количество выполненных задач
-//        var checkedCounter = 0 //чтобы посчитать выполненные привычки
+//    private fun saveCheckedHabitDay() {
+//        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+//        //var checkedCounter = 0 //чтобы посчитать выполненные привычки
 //        adapter.currentList.forEach {
-//            if (it.habitChecked) checkedCounter++ //0322 если отмечено, увеличиваем счетчик на 1
+//            if (it.checkedHabitDay != today) {
+//                it.checkedHabitDay = today
+//                it.habitChecked = false
+//            }
+//        } //0322 если отмечено, увеличиваем счетчик на 1
 //        }
-//        val tempHabitItem = habitNameItem?.copy(
-//            //planDaysPerWeek = adapter.planDaysPerWeek, //220316 заменить itemCounter на значение days per week //48 сколько всего задач в привычке
-//            checkedHabitCounter = checkedCounter//220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
-//        )
-//        mainViewModel.updateHabitName(tempHabitItem!!)
-//    }
-
 }

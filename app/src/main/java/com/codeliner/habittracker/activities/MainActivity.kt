@@ -6,14 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.preference.PreferenceManager
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.codeliner.habittracker.R
 import com.codeliner.habittracker.billing.BillingManager
 import com.codeliner.habittracker.databinding.ActivityMainBinding
-import com.codeliner.habittracker.db.HabitAdapter
-import com.codeliner.habittracker.db.HabitTaskAdapter
 import com.codeliner.habittracker.dialogs.NewHabitDialog
 import com.codeliner.habittracker.fragments.FragmentManager
 import com.codeliner.habittracker.fragments.HabitNamesFragment
@@ -23,7 +18,6 @@ import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
     lateinit var binding: ActivityMainBinding
@@ -48,6 +42,12 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
         if (!pref.getBoolean(BillingManager.REMOVE_ADS_KEY, false)) loadInterAd() //61 если записано false (нет покупки), то реклама запускается
     }
 
+//    private fun habitCheckedOff(startDate: Int) {
+//        var checkedOffHabits: Boolean = true
+//        if(Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - startDate !=0) {
+//            checkedOffHabits = false
+//        } else checkedOffHabits = true
+//    }
 
     private fun loadInterAd() {
         val request = AdRequest.Builder().build() //57 создали запрос на получение рекламы

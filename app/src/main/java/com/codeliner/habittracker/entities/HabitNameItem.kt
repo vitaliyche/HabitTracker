@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 import java.io.Serializable
 
 @Entity (tableName = "habits_list_names")
-data class HabitNameItem(
+data class  HabitNameItem(
     @PrimaryKey (autoGenerate = true)
     val id: Int?,
     @ColumnInfo (name = "habitChecked")
-    val habitChecked: Boolean = false,
+    var habitChecked: Boolean = false,
     @ColumnInfo (name = "name")
     val name: String,
     @ColumnInfo (name = "time")
@@ -23,6 +23,8 @@ data class HabitNameItem(
     val checkedItemsCounter: Int,
     @ColumnInfo (name = "checkedHabitCounter")
     val checkedHabitCounter: Int,
+    @ColumnInfo (name = "checkedHabitDay")
+    var checkedHabitDay: Int,
     @ColumnInfo (name = "itemsIds")
     val itemsIds: String,
 
