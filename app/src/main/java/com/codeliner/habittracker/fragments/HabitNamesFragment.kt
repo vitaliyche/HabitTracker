@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,13 +19,15 @@ import com.codeliner.habittracker.db.MainViewModel
 import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
 import com.codeliner.habittracker.entities.HabitNameItem
+import com.codeliner.habittracker.entities.LibraryItem
 import com.codeliner.habittracker.utils.TimeManager
 import kotlinx.android.synthetic.main.habit_name_item.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 class HabitNamesFragment : BaseFragment(), //24 копируем класс из NoteFragment
     HabitAdapter.Listener {
-    var items = arrayListOf(tvHabitName)
+    var items = mutableListOf<HabitNameItem>()
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
 
@@ -65,7 +68,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         ): Boolean {
             val startPosition = viewHolder.adapterPosition // start position
             val endPosition = target.adapterPosition //endPosition
-            Collections.swap(items, startPosition, endPosition)
+            Collections.swap(items, startPosition, endPosition) //нужно понять что поместить в items
             adapter.notifyItemMoved(startPosition,endPosition) //notify the adapter about item moved
             return false
         } //this is for the drag and drop feature
@@ -111,6 +114,22 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         //rcView.layoutManager = LinearLayoutManager(activity)
         val itemTouchHelper = ItemTouchHelper(simplecallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
+//        val touchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+//            ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+//            override fun onMove(
+//                recyclerView: RecyclerView,
+//                viewHolder: RecyclerView.ViewHolder,
+//                target: RecyclerView.ViewHolder
+//            ): Boolean {
+//                val sourcePosition = viewHolder.adapterPosition
+//                val targetPosition = target.adapterPosition
+//
+//            }
+//
+//            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+//                TODO("Not yet implemented")
+//            }
+//        })
     }
 
     //25 функция запускается каждый раз, когда есть изменения в таблице для названий Привычек
