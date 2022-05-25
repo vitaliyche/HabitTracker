@@ -199,6 +199,10 @@ class HabitActivity : AppCompatActivity(), HabitTaskAdapter.Listener {
                 //46 почему-то не обновляется library
                 mainViewModelHAC.getAllLibraryItems("%${edItem?.text.toString()}%") //46 чтобы обновился список подсказок после удаления
             }
+            HabitTaskAdapter.DELETE -> {
+                mainViewModelHAC.deleteTask(habitTaskItem.id!!)
+                mainViewModelHAC.getAllTaskItems("%${edItem?.text.toString()}%")
+            }
         } //46 константы создаем в адаптере
 
     }
