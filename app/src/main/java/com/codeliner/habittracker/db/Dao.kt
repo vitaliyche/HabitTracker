@@ -23,6 +23,10 @@ interface Dao {
     @Query ("SELECT * FROM library WHERE name LIKE :name")
     suspend fun getAllLibraryTasks(name: String): List<LibraryItem> //44 получить  из библиотеки все элементы
 
+    @Query ("SELECT * FROM habits_list_item WHERE name LIKE :name")
+    suspend fun getAllTasks(name: String): List<HabitTaskItem>
+
+
     @Query ("DELETE FROM note_list WHERE id IS :id") //удаляем из списка note_list запись, где id равен переданному id из функции
     suspend fun deleteNote(id: Int) //suspend - если хотим запустить в корутине, а не на второстепенном потоке (где выдаст ошибку)
     @Query ("DELETE FROM habits_list_names WHERE id IS :id")
@@ -31,6 +35,8 @@ interface Dao {
     suspend fun deleteTasksByListId(listId: Int)
     @Query ("DELETE FROM library WHERE id IS :id")
     suspend fun deleteLibraryItem(id: Int)
+    @Query ("DELETE FROM habits_list_item WHERE id IS :id")
+    suspend fun deleteTask(id: Int)
 
     @Insert
     suspend fun insertNote(note: NoteItem)

@@ -63,6 +63,9 @@ class HabitTaskAdapter(private val listener: Listener): ListAdapter<HabitTaskIte
                 ibEditHTIt.setOnClickListener {//40 добавить слушатель нажатий на кнопку для редактирования задачи
                     listener.onClickItem(habitTaskItem, EDIT)//40 проверяем что делаем: редактирование или удаление
                 }
+                deleteTaskButton.setOnClickListener {
+                    listener.onClickItem(habitTaskItem, DELETE)
+                } //слушаю кнопку удаления задачи
             }
         }
 
@@ -144,5 +147,6 @@ class HabitTaskAdapter(private val listener: Listener): ListAdapter<HabitTaskIte
         const val EDIT_LIBRARY_ITEM = 2
         const val DELETE_LIBRARY_ITEM = 3
         const val ADD = 4
+        const val DELETE = 5 //для удаления отдельной задачи
     }
 }

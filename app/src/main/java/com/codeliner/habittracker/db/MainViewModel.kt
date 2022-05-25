@@ -11,6 +11,7 @@ import java.lang.IllegalArgumentException
 class MainViewModel(dataBase: MainDataBase): ViewModel() { //не используем напрямую бизнес-логику, через viewmodel
     val dao = dataBase.getDao()
     val libraryItems = MutableLiveData<List<LibraryItem>>()
+    val taskItems = MutableLiveData<List<HabitTaskItem>>()
 
     val allNotes: LiveData<List<NoteItem>> = dao.getAllNotes().asLiveData() //когда NoteItem будет меняться, LiveData будет автоматически обновляться //можем прослушивать есть ли изменения в заметках и обновлять адаптер
     //25 получаем все Привычки, которые есть в БД
@@ -23,6 +24,10 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() { //не использ
 
     fun getAllLibraryItems(name: String) = viewModelScope.launch { //45 запрашиваем данные из БД
         libraryItems.postValue(dao.getAllLibraryTasks(name))  //45 получаем из БД все элементы по названию и передаем в observer
+    }
+
+    fun getAllTaskItems(name: String) = viewModelScope.launch {
+        taskItems.postValue(dao.getAllTasks(name))
     }
 
     fun insertNote(note: NoteItem) = viewModelScope.launch { //используем корутины, чтобы записать данные на второстепенном потоке //не будет захламляться основной поток, в котором рисуетс пользовательский интерфейс
@@ -66,6 +71,10 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() { //не использ
     fun deleteLibraryItem(id: Int) = viewModelScope.launch {
         dao.deleteLibraryItem(id)
     } //46 можем пользоваться функцией из HabitActivity
+
+    fun deleteTask(id: Int) = viewModelScope.launch {
+        dao.deleteTask(id)
+    }
 
     private suspend fun isLibraryItemExists(name: String): Boolean { //44 функция, которая по имени, которое хотим записать, будет проверять, есть ли в библиотеке такой элемент. если есть, выдаст список
         return dao.getAllLibraryTasks(name).isNotEmpty() //44 если в списке что-то есть, выдает true
