@@ -27,7 +27,7 @@ import kotlin.collections.ArrayList
 
 class HabitNamesFragment : BaseFragment(), //24 копируем класс из NoteFragment
     HabitAdapter.Listener {
-    var items = mutableListOf<HabitNameItem>()
+    val items = mutableListOf<HabitNameItem>()
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
 
@@ -68,7 +68,8 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         ): Boolean {
             val startPosition = viewHolder.adapterPosition // start position
             val endPosition = target.adapterPosition //endPosition
-            Collections.swap(items, startPosition, endPosition) //нужно понять что поместить в items
+            //Collections.swap(items, startPosition, endPosition) //нужно понять что поместить в items
+            //adapter.submitList(items)
             adapter.notifyItemMoved(startPosition,endPosition) //notify the adapter about item moved
             return false
         } //this is for the drag and drop feature
@@ -139,6 +140,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
             //25 и здесь будет появляться новый элемент, редактироваться или удаляться, если удаляем
             //27 it - новый список, который пришел
             adapter.submitList(it)
+            items.addAll(it)
             binding.tvEmptyHabits.visibility = if (it.isEmpty()) { //37 если список пустой
                 View.VISIBLE //37 нужно показать tvEmptyHabits (написано слово Empty)
             } else { //37 если список не пустой
