@@ -111,17 +111,6 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
     //25 функция запускается каждый раз, когда есть изменения в таблице для названий Привычек
     private fun observer() {
         mainViewModel.allHabits.observe(viewLifecycleOwner) { habitItems ->
-            if (!IS_HABITS_RESET) {
-                val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-                habitItems.forEach {
-                    if (it.checkedHabitDay != today) {
-                        it.checkedHabitDay = today //присовить сегодняшний день
-                        it.habitChecked = false //сделать привычку невыполненной
-                    }
-                }
-                IS_HABITS_RESET = true
-            } //если открыли приложение
-
             adapter.submitList(habitItems) //25 здесь нужно обновлять adapter, который будет привязан к recycler view данного фрагмента //25 и здесь будет появляться новый элемент, редактироваться или удаляться, если удаляем //27 it - новый список, который пришел
             items.addAll(habitItems)
             binding.tvEmptyHabits.visibility = if (habitItems.isEmpty()) { //37 если список пустой
@@ -129,6 +118,20 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
             } else { //37 если список не пустой
                 View.GONE //37 то спрятать textView
             }
+
+            if (!IS_HABITS_RESET) {
+                val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+                habitItems.forEach {
+                    if (it.checkedHabitDay != today) {
+                        it.checkedHabitDay = today //присвоить сегодняшний день
+                        it.habitChecked = false //сделать привычку невыполненной
+                        mainViewModel.updateHabitName(it)
+                    }
+                }
+
+                IS_HABITS_RESET = true
+            } //если открыли приложение
+
         } //25 нужно добавлять recycler view, adapter //25 и разметку для отдельного элемента, с помощью которого будем заполнять этот список //25 в разметке - название, время, прогресс бар (сколько задач выполнено и сколько осталось) //25 и счетчик - сколько задач выполнено и сколько задач в списке //25 когда все задачи выполнены, прогрес бар становится зеленым //25 тогда сможем смотреть как работает список
     }
 
