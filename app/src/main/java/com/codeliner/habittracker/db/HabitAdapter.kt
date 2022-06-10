@@ -52,7 +52,7 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
                     listener.onClickItem (habitNameItem.copy(
                         habitChecked = chBoxHabit.isChecked,
                         checkedHabitCounter = habitNameItem.checkedHabitCounter + 1,
-                        checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)-1), // DAY_OF_YEAR)-1 использовать для теста
+                        checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)), // DAY_OF_YEAR)-1 использовать для теста
                         CHECK_BOX) //0322 записываем true или false
                 } else {
                     listener.onClickItem (habitNameItem.copy(
