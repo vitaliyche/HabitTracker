@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="3dp"
         app:cardCornerRadius="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -32,8 +32,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="1dp">
+                android:orientation="vertical">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -44,9 +43,9 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
                         android:layout_gravity="start"
-                        android:layout_weight="0.6">
+                        android:layout_weight="0.6"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/tvHabitName"
@@ -69,9 +68,9 @@
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:layout_gravity="end"
-                        android:layout_weight="0.4">
+                        android:layout_weight="0.4"
+                        android:orientation="horizontal">
 
                         <androidx.cardview.widget.CardView
                             android:id="@+id/counterCard"
@@ -118,13 +117,15 @@
                             android:elevation="10dp"
                             app:srcCompat="@drawable/ic_delete_habit" />
                     </LinearLayout>
+
                 </LinearLayout>
 
                 <ProgressBar
                     android:id="@+id/pBar"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="4dp" />
+
             </LinearLayout>
 
         </LinearLayout>
