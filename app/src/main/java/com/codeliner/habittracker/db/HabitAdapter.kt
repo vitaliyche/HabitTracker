@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.codeliner.habittracker.R
 import com.codeliner.habittracker.databinding.HabitNameItemBinding
+import com.codeliner.habittracker.entities.HabitCheckedItem
 import com.codeliner.habittracker.entities.HabitNameItem
 import java.util.*
 
@@ -29,6 +30,7 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
         private val binding = HabitNameItemBinding.bind(view)
 
         fun setData(habitNameItem: HabitNameItem, listener: Listener) = with(binding) {
+
             tvHabitName.text = habitNameItem.name //получаем доступ к элементам
             tvTime.text = habitNameItem.time
             pBar.max = habitNameItem.allItemCounter//48 максимальный прогресс прогрессбара - это всего задач
@@ -36,24 +38,30 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
             val colorState = ColorStateList.valueOf(getProgressColorState(habitNameItem, binding.root.context))
             pBar.progressTintList = colorState //48 tintList принимает colorState
             counterCard.backgroundTintList = colorState //48 цвет счетчика меняется в зависимости все или нет задачи выполнили
-
             val counterText = "${habitNameItem.checkedHabitCounter}/${habitNameItem.planDaysPerWeek}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
             tvCounter.text = counterText
+
             itemView.setOnClickListener { //itemView - при нажатии будем открывать наш список
                 listener.onClickItem(habitNameItem, NAME) //220315 будет открываться список задач
             }
+
             ibDelete.setOnClickListener{ //28 если нажмем на кнопку Удалить, запускается слушатель,
                 listener.deleteItem(habitNameItem.id!!) //28 который возвращает от каждого элемента идентификатор
             } //28 и по этому идентификатору мы можем удалить из БД данный элемент
+
             chBoxHabit.isChecked = habitNameItem.habitChecked
             setPaintFlagAndColor(binding) //39 запускаем функцию перечеркивания текста один раз, когда обновляется адаптер
+
             chBoxHabit.setOnClickListener { //0322 слушаем нажатие чекбокса выполнения привычки
+
                 if(chBoxHabit.isChecked) {
+
                     listener.onClickItem (habitNameItem.copy(
                         habitChecked = chBoxHabit.isChecked,
                         checkedHabitCounter = habitNameItem.checkedHabitCounter + 1,
                         checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)), // DAY_OF_YEAR)-1 использовать для теста
                         CHECK_BOX) //0322 записываем true или false
+
                 } else {
                     listener.onClickItem (habitNameItem.copy(
                         habitChecked = chBoxHabit.isChecked,
@@ -61,10 +69,28 @@ class HabitAdapter(private val listener: Listener): ListAdapter<HabitNameItem, H
                         CHECK_BOX) //0322 записываем true или false
                 } //нужно проверить, что непрочекано, только тогда добавляем+1
             } //0322 для сохранения состояния нужно сделать апдейт в БД Dao
+
             ibEdit.setOnClickListener{ //29 при нажатии на кнопку edit запускается listener // и editItem интерфейс, который нужно добавить во фрагмент
                 listener.editItem(habitNameItem) //29 передается весь элемент
             }
-        } // с помощью setdata можем заполнять разметку
+
+        } // SetData - с помощью setdata можем заполнять разметку
+
+
+        // при нажатии на checked нужно добавить данные во вторую БД или удалить, если галочка убрана
+        /*fun setHabitCheckedItem(habitCheckedItem: HabitCheckedItem, listener: Listener) = with(binding) {
+
+            chBoxHabit.setOnClickListener { //0322 слушаем нажатие чекбокса выполнения привычки
+
+                if(chBoxHabit.isChecked) {
+
+                    listener.onClickItem (habitCheckedItem.copy(
+                        habitId = tvHabitName.toString(),
+                        checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)),
+                        )
+                }
+            }
+        }*/
 
         private fun getProgressColorState(item: HabitNameItem, context: Context): Int { //48 цвет для прогрессбара
             return if (item.checkedItemsCounter == item.allItemCounter) {

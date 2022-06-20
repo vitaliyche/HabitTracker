@@ -17,7 +17,6 @@ import com.codeliner.habittracker.settings.SettingsActivity
 import com.google.android.gms.ads.*
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
-import java.util.*
 
 class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
     lateinit var binding: ActivityMainBinding
