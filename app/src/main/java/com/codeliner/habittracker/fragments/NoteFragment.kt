@@ -60,6 +60,7 @@ class NoteFragment : BaseFragment(), NoteAdapter.Listener {
         rcViewNote.adapter = adapter //передаем адаптер в rcViewNote //указываем адаптер, который будет обновлять recyclerView
     }
 
+
     private fun getLayoutManager(): RecyclerView.LayoutManager { //54 в зависимости от настроек будем получать нужный Layout Manager, чтобы передать его в наш Recycler View
         return if (defPref.getString("note_style_key", "Linear") == "Linear") { //54 если получили Linear
             LinearLayoutManager(activity)
@@ -68,11 +69,22 @@ class NoteFragment : BaseFragment(), NoteAdapter.Listener {
         }
     } //обновление настроек сделаем в Main Activity
 
-    private fun observer() { //observer следит за изменениями в базе данных
-        mainViewModel.allNotes.observe(viewLifecycleOwner) { //и будет выдавать каждый раз обновленный список
-            adapter.submitList(it) //submitlist - обновляет адаптер
-        }
-    }
+
+    private fun observer() {
+
+        mainViewModel.allNotes.observe(viewLifecycleOwner) {
+            adapter.submitList(it) // submitlist - обновляет адаптер
+
+            binding.textEmptyNotes.visibility = if (it.isEmpty()) {
+
+                View.VISIBLE // показать текст Empty
+            } else {
+                View.GONE // спрятать textView
+
+            } // if - список пустой
+        } // observe - следит за изменениями в базе данных и выдает обновленный список
+    } // fun observer
+
 
     private fun onEditResult() { //ждем результат с активити, который мы запустили, если придет результат
         editLauncher = registerForActivityResult(

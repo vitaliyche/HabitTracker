@@ -27,7 +27,7 @@ import kotlin.collections.ArrayList
 
 class HabitNamesFragment : BaseFragment(), //24 копируем класс из NoteFragment
     HabitAdapter.Listener {
-    var items = mutableListOf<HabitNameItem>()
+    val items = mutableListOf<HabitNameItem>()
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
 
@@ -50,7 +50,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
                         days, //сколько задач уже выполнено
                         0,
                         0,
-                        0,//Calendar.getInstance().get(Calendar.DAY_OF_YEAR),
+                        0, //Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
                         ""
                     )
                 mainViewModel.insertHabit(habitName) //делаем insert //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
@@ -68,7 +68,8 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         ): Boolean {
             val startPosition = viewHolder.adapterPosition // start position
             val endPosition = target.adapterPosition //endPosition
-            Collections.swap(items, startPosition, endPosition) //нужно понять что поместить в items
+            //Collections.swap(items, startPosition, endPosition) //нужно понять что поместить в items
+            //adapter.submitList(items)
             adapter.notifyItemMoved(startPosition,endPosition) //notify the adapter about item moved
             return false
         } //this is for the drag and drop feature
@@ -92,16 +93,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         super.onViewCreated(view, savedInstanceState)
         initRcView()
         observer() //инициализация observer
-
         // должно типа обнулять галочки, но не обнуляет
-//        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-//        adapter.currentList.forEach {
-//            if (it.checkedHabitDay != today) {
-//                it.checkedHabitDay = today
-//                it.habitChecked = false
-//                //mainViewModel.insertHabit()
-//            }
-//        }
     }
 
     //инициализация recyclerView и адаптера //binding, чтобы напрямую использовать идентификатор
@@ -114,57 +106,41 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         //rcView.layoutManager = LinearLayoutManager(activity)
         val itemTouchHelper = ItemTouchHelper(simplecallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
-//        val touchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-//            ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
-//            override fun onMove(
-//                recyclerView: RecyclerView,
-//                viewHolder: RecyclerView.ViewHolder,
-//                target: RecyclerView.ViewHolder
-//            ): Boolean {
-//                val sourcePosition = viewHolder.adapterPosition
-//                val targetPosition = target.adapterPosition
-//
-//            }
-//
-//            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-//                TODO("Not yet implemented")
-//            }
-//        })
     }
 
     //25 функция запускается каждый раз, когда есть изменения в таблице для названий Привычек
     private fun observer() {
-        mainViewModel.allHabits.observe(viewLifecycleOwner) {
-            //25 здесь нужно обновлять adapter, который будет привязан к recycler view данного фрагмента
-            //25 и здесь будет появляться новый элемент, редактироваться или удаляться, если удаляем
-            //27 it - новый список, который пришел
-            adapter.submitList(it)
-            binding.tvEmptyHabits.visibility = if (it.isEmpty()) { //37 если список пустой
+        mainViewModel.allHabits.observe(viewLifecycleOwner) { habitItems ->
+            adapter.submitList(habitItems) //25 здесь нужно обновлять adapter, который будет привязан к recycler view данного фрагмента //25 и здесь будет появляться новый элемент, редактироваться или удаляться, если удаляем //27 it - новый список, который пришел
+            items.addAll(habitItems)
+            binding.tvEmptyHabits.visibility = if (habitItems.isEmpty()) { //37 если список пустой
                 View.VISIBLE //37 нужно показать tvEmptyHabits (написано слово Empty)
             } else { //37 если список не пустой
                 View.GONE //37 то спрятать textView
             }
-        }
-        //25 нужно добавлять recycler view, adapter
-        //25 и разметку для отдельного элемента, с помощью которого будем заполнять этот список
-        //25 в разметке - название, время, прогресс бар (сколько задач выполнено и сколько осталось)
-        //25 и счетчик - сколько задач выполнено и сколько задач в списке
-        //25 когда все задачи выполнены, прогрес бар становится зеленым
-        //25 тогда сможем смотреть как работает список
+
+            if (!IS_HABITS_RESET) {
+                val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+                habitItems.forEach {
+                    if (it.checkedHabitDay != today) {
+                        it.checkedHabitDay = today //присвоить сегодняшний день
+                        it.habitChecked = false //сделать привычку невыполненной
+                        mainViewModel.updateHabitName(it)
+                    }
+                }
+
+                IS_HABITS_RESET = true
+            } //если открыли приложение
+
+        } //25 нужно добавлять recycler view, adapter //25 и разметку для отдельного элемента, с помощью которого будем заполнять этот список //25 в разметке - название, время, прогресс бар (сколько задач выполнено и сколько осталось) //25 и счетчик - сколько задач выполнено и сколько задач в списке //25 когда все задачи выполнены, прогрес бар становится зеленым //25 тогда сможем смотреть как работает список
     }
 
-    //чтобы была только одна инстанция фрагмента, если пытаемся запустить несколько раз
-    companion object {
-        @JvmStatic
-        fun newInstance() = HabitNamesFragment()
-    }
-
-    override fun deleteItem(id: Int) { //28 имплементируем deleteItem и onClickItem
+    override fun deleteItem(id: Int) {
         DeleteDialog.showDialog(
             context as AppCompatActivity,
             object :
                 DeleteDialog.Listener { //28 context может быть null, поэтому укажем его как AppCompatActivity
-                override fun onClick() { //28 имплементируем onClick
+                override fun onClick() {
                     mainViewModel.deleteHabit(id, true)
                 } //28 нажали на delete в нашем элементе из списка, запускается диалог,
             }) //28 который спрашивает хотим ли мы на самом деле удалить
@@ -189,12 +165,11 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
             habitNameItem.name,
             habitNameItem.planDaysPerWeek
         ) //29 когда обновляем, передаем название, которое было
-        //saveItemCount()
     }
 
     override fun onClickItem(habitNameItem: HabitNameItem, state: Int) {
-        when (state) { //220315 проверяем на какой элемент строки нажали
-            HabitAdapter.CHECK_BOX -> mainViewModel.updateHabitName(habitNameItem) //220315 записываем значение в БД
+        when (state) { //220315 проверить на какой элемент строки нажали
+            HabitAdapter.CHECK_BOX -> mainViewModel.updateHabitName(habitNameItem) //220315 записать значение в БД
             HabitAdapter.NAME -> { //220315 если нажали на название Привычки
                 val i = Intent(activity, HabitActivity::class.java).apply {
                     putExtra(HabitActivity.HABIT_NAME_HAC, habitNameItem)
@@ -204,14 +179,10 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         }
     }
 
-//    private fun saveCheckedHabitDay() {
-//        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-//        //var checkedCounter = 0 //чтобы посчитать выполненные привычки
-//        adapter.currentList.forEach {
-//            if (it.checkedHabitDay != today) {
-//                it.checkedHabitDay = today
-//                it.habitChecked = false
-//            }
-//        } //0322 если отмечено, увеличиваем счетчик на 1
-//        }
+    companion object {
+        private var IS_HABITS_RESET = false //если галочки сброшены
+
+        @JvmStatic //чтобы была только одна инстанция фрагмента, если пытаемся запустить несколько раз
+        fun newInstance() = HabitNamesFragment()
+    }
 }
