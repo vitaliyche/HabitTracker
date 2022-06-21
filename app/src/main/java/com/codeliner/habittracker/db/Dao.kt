@@ -63,7 +63,7 @@ interface Dao {
     //NoteItem
     @Query ("SELECT * FROM note_list")
     fun getAllNotes(): Flow<List<NoteItem>> //Flow - не нужно указывать suspend
-    @Query ("DELETE FROM note_list WHERE id IS :id") //удаляем из списка note_list запись, где id равен переданному id из функции
+    @Query ("DELETE FROM note_list WHERE id IS :id")
     suspend fun deleteNote(id: Int) //suspend - если хотим запустить в корутине, а не на второстепенном потоке (где выдаст ошибку)
     @Insert
     suspend fun insertNote(note: NoteItem)

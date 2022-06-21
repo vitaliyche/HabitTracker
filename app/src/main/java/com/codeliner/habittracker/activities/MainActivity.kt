@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.preference.PreferenceManager
 import com.codeliner.habittracker.R
 import com.codeliner.habittracker.billing.BillingManager
@@ -39,6 +41,31 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
         FragmentManager.setFragment(HabitNamesFragment.newInstance(), this) //24 фрагмент, который отображается при запуске приложения
         setBottomNavListener() //запуск функции
         if (!pref.getBoolean(BillingManager.REMOVE_ADS_KEY, false)) loadInterAd() //61 если записано false (нет покупки), то реклама запускается
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId) {
+
+            R.id.menu_settings -> {
+                showInterAd(object : AdListener {
+                    override fun onFinish() {
+                        startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) //открывается экран с настройками, только когда запускается onFinish
+                    } //onFinish - сработает только когда объявление закрыли или не загрузилось
+                })
+            }
+
+            R.id.menu_new_habit -> {
+                FragmentManager.currentFrag?.onClickNew()
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.top_menu, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 
 //    private fun habitCheckedOff(startDate: Int) {
@@ -89,16 +116,11 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
         }
     }
 
-    private fun setBottomNavListener() { //подключаем слушатель нажатий
+    private fun setBottomNavListener() {
         binding.bNav.setOnItemSelectedListener {
-            when(it.itemId) { // проверяем на какую кнопку нажали
-                R.id.settings -> { //когда жму на кнопку Settings
-                    showInterAd(object : AdListener {
-                        override fun onFinish() { //57 onFinish сработает только когда объявление закрыли или не загрузилось
-                            startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) //открывается экран с настройками, только когда запускается onFinish
-                        }
-                    })
-                }
+
+            when(it.itemId) {
+
                 R.id.notes -> {
                     showInterAd(object : AdListener {
                         override fun onFinish() { //57 onFinish сработает только когда объявление закрыли или не загрузилось
@@ -107,17 +129,18 @@ class MainActivity : AppCompatActivity(), NewHabitDialog.Listener {
                         }
                     })
                 }
+
                 R.id.habits_list -> { //если выбран habitNamesFragment и мы нажмем на кнопку New,
                     currentMenuItemId = R.id.habits_list //54 сохранено, что было выбрано, когда зашли в Настройки
                     FragmentManager.setFragment(HabitNamesFragment.newInstance(), this) //то запустится onClickNew во фрагменте HabitNamesFragment
                 }
-                R.id.new_item -> {
-                    FragmentManager.currentFrag?.onClickNew()
-                } //NewHabitDialog.showDialog(this, this)
-            }
+
+            } // when - проверяем на какую кнопку нажали
+
             true
-        }
-    }
+
+        } // setOnItemSelectedListener
+    } // fun setBottomNavListener
 
     override fun onResume() { //54 когда возвращаемся с активити Настроек
         super.onResume()
