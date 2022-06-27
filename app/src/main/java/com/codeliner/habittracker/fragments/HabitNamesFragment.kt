@@ -98,12 +98,14 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
 
     //инициализация recyclerView и адаптера //binding, чтобы напрямую использовать идентификатор
     private fun initRcView() = with(binding) {
+
         rcView.layoutManager = LinearLayoutManager(activity) //27 this не можем передать, потому что binding и фрагмент, //27 поэтому передаем activity, потому что во фрагменте есть активити
+
+        //TODO: подключить checkedListener для записи данных в HabitCheckedItem
         adapter = HabitAdapter(this@HabitNamesFragment) //27 инициализируем адаптер
         rcView.adapter = adapter //27 адаптер нужно подключить к нашему recycler view
 
         val recyclerView : RecyclerView = rcView //findViewById (R.id.rcView)
-        //rcView.layoutManager = LinearLayoutManager(activity)
         val itemTouchHelper = ItemTouchHelper(simplecallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
