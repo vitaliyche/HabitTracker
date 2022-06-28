@@ -18,6 +18,7 @@ import com.codeliner.habittracker.db.HabitAdapter
 import com.codeliner.habittracker.db.MainViewModel
 import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
+import com.codeliner.habittracker.entities.HabitCheckedItem
 import com.codeliner.habittracker.entities.HabitNameItem
 import com.codeliner.habittracker.entities.LibraryItem
 import com.codeliner.habittracker.utils.TimeManager
@@ -179,6 +180,14 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
                 startActivity(i)
             }
         }
+    }
+
+    override fun saveToCheckedEntity(habitCheckedItem: HabitCheckedItem) {
+        mainViewModel.insertChecked(habitCheckedItem) //220315 записать значение в БД
+    }
+
+    override fun deleteFromCheckedEntity(id: Int) {
+        mainViewModel.deleteCheckedItem(id)
     }
 
     companion object {

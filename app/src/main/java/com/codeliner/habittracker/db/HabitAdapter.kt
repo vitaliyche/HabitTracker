@@ -32,6 +32,7 @@ class HabitAdapter(
 
     override fun onBindViewHolder(holder: ItemHolder, position: Int) {
         holder.setData(getItem(position), listener) // listener присваивается каждому элементу
+
     }
 
 
@@ -54,13 +55,12 @@ class HabitAdapter(
             val counterText = "${habitNameItem.checkedHabitCounter}/${habitNameItem.planDaysPerWeek}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
             tvCounter.text = counterText
 
-
             itemView.setOnClickListener {
                 listener.onClickItem(habitNameItem, NAME) //будет открываться список задач
             } //itemView - при нажатии открыть список
 
             ibDelete.setOnClickListener{ //28 если нажмем на кнопку Удалить, запускается слушатель,
-                listener.deleteItem(habitNameItem.id!!) //28 который возвращает от каждого элемента идентификатор
+                listener.deleteItem(habitNameItem.id!!) // который возвращает от каждого элемента идентификатор
             } //28 и по этому идентификатору мы можем удалить из БД данный элемент
 
             chBoxHabit.isChecked = habitNameItem.habitChecked
@@ -79,11 +79,12 @@ class HabitAdapter(
                         CHECK_BOX) //0322 записываем true или false
 
                      //TODO: сохранить данные в таблицу HabitCheckedItem
-/*                    listener.onClickItem (habitCheckedItem.copy(
-                        habitChecked = chBoxHabit.isChecked,
-                        checkedHabitCounter = habitNameItem.checkedHabitCounter + 1,
-                        checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)), // DAY_OF_YEAR)-1 использовать для теста
-                        CHECK_BOX) //0322 записываем true или false*/
+                    /*listener.saveToCheckedEntity(
+                        habitCheckedItem.copy(
+                            habitId = tvHabitName.toString(),
+                            checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+                        ),
+                    )*/
 
                 } else {
                     listener.onClickItem (habitNameItem.copy(
@@ -91,7 +92,7 @@ class HabitAdapter(
                         checkedHabitCounter = habitNameItem.checkedHabitCounter - 1),
                         CHECK_BOX) //0322 записываем true или false
 
-                    // TODO: сохранить данные в таблицу HabitCheckedItem
+                    // TODO: удалить данные из таблицы HabitCheckedItem
 /*                    listener.onClickItem (habitCheckedItem.copy(
                         habitChecked = chBoxHabit.isChecked,
                         checkedHabitCounter = habitNameItem.checkedHabitCounter - 1),
@@ -110,43 +111,41 @@ class HabitAdapter(
 
 
         // TODO: при нажатии на checked нужно добавить данные во вторую БД или удалить, если галочка убрана
-        /*fun setHabitCheckedItem(habitCheckedItem: HabitCheckedItem, checkedlistener: CheckedListener)
+        fun setHabitCheckedData(habitCheckedItem: HabitCheckedItem, listener: Listener)
             = with(binding) {
 
             chBoxHabit.setOnClickListener {
 
                 if (chBoxHabit.isChecked) {
 
-                    checkedlistener.onClickItem(
+                    listener.saveToCheckedEntity(
                         habitCheckedItem.copy(
                             habitId = tvHabitName.toString(),
                             checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
                         ),
-                        CHECK_BOX
                     )
                 } else {
                     //TODO: удалить строку из таблицы HabitCheckedItem
-                    checkedlistener.onClickItem(
-                        habitCheckedItem.copy(
-                            habitId = tvHabitName.toString(),
-                            checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR-1)
-                        ),
-                        CHECK_BOX
-                    )
+                    //listener.deleteFromCheckedEntity(habitCheckedItem.id!!)
                 }
             }
-        }*/
+        }
 
-        private fun getProgressColorState(item: HabitNameItem, context: Context): Int { //48 цвет для прогрессбара
+
+        private fun getProgressColorState(item: HabitNameItem, context: Context): Int {
+
             return if (item.checkedItemsCounter == item.allItemCounter) {
                 ContextCompat.getColor(context, R.color.green_main) //48 если отмечены все элементы в списке, цвет зеленый
             } else {
                 ContextCompat.getColor(context, R.color.red_main) //48 цвет прогрессбара красный
             } //48 если не все элементы отмечены
-        } //48 цвет нужно применить в setData
+
+        }  // цвет для прогрессбара, нужно применить в setData
+
 
         private fun setPaintFlagAndColor(binding: HabitNameItemBinding) { //38 чтобы textView был перечеркнут
             binding.apply {
+
                 if (chBoxHabit.isChecked) { //если чекбокс отмечен
                     tvHabitName.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG //38 перечеркнуть весь текст
                     tvTime.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
@@ -160,6 +159,7 @@ class HabitAdapter(
                 }
             } //38 запуск функции из setData
         }
+
 
         companion object {
             fun create(parent: ViewGroup): ItemHolder{
@@ -188,19 +188,24 @@ class HabitAdapter(
         fun deleteItem(id: Int) //удаление записи из БД
         fun editItem(habitNameItem: HabitNameItem) //29 редактирование записи из БД. Передаем полностью название, потому что будем изменять
         fun onClickItem(habitNameItem: HabitNameItem, state: Int)
+        fun saveToCheckedEntity(habitCheckedItem: HabitCheckedItem)
+        fun deleteFromCheckedEntity(id: Int)
     }
+
 
     //TODO: реализовать интерфейс для HabitCheckedItem, чтобы записывать туда данные
     interface CheckedListener {
-        fun deleteItem(id: Int) //удаление записи из БД
-        fun editItem(habitCheckedItem: HabitCheckedItem) //29 редактирование записи из БД. Передаем полностью название, потому что будем изменять
+        fun deleteItem(id: Int)
+        fun editItem(habitCheckedItem: HabitCheckedItem)
         fun onClickItem(habitCheckedItem: HabitCheckedItem, state: Int)
+        fun saveToCheckedEntity(habitCheckedItem: HabitCheckedItem)
+        fun deleteFromCheckedEntity(id: Int)
     }
 
 
     companion object {
         const val NAME = 0
         const val CHECK_BOX = 1
-    } //40 чтобы передавать только одну функцию в нашем интерфейсе и с помощью условия определять что нужно сделать
+    } // чтобы передавать только одну функцию в интерфейс и условием определять что сделать
 
 }

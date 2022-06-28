@@ -13,8 +13,8 @@ data class  HabitCheckedItem(
     val habitId: String,
     @ColumnInfo (name = "time")
     val time: String,
-//    @ColumnInfo (name = "checkedHabitCounter")
-//    val checkedHabitCounter: Int,
     @ColumnInfo (name = "checkedHabitDay")
-    var checkedHabitDay: Int
+    var checkedHabitDay: Int,
+    @ColumnInfo (name = "nameId")
+    val nameId: Int
     ): Serializable
