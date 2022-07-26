@@ -18,6 +18,7 @@ import com.codeliner.habittracker.db.HabitAdapter
 import com.codeliner.habittracker.db.MainViewModel
 import com.codeliner.habittracker.dialogs.DeleteDialog
 import com.codeliner.habittracker.dialogs.NewHabitDialog
+import com.codeliner.habittracker.entities.HabitCheckedItem
 import com.codeliner.habittracker.entities.HabitNameItem
 import com.codeliner.habittracker.entities.LibraryItem
 import com.codeliner.habittracker.utils.TimeManager
@@ -27,7 +28,7 @@ import kotlin.collections.ArrayList
 
 class HabitNamesFragment : BaseFragment(), //24 копируем класс из NoteFragment
     HabitAdapter.Listener {
-    val items = mutableListOf<HabitNameItem>()
+    //val items = mutableListOf<HabitNameItem>()
     private lateinit var binding: FragmentHabitNamesBinding
     private lateinit var adapter: HabitAdapter //27 подготавливаем переменную, чтобы инициализировать адаптер
 
@@ -112,16 +113,16 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
 
     //25 функция запускается каждый раз, когда есть изменения в таблице для названий Привычек
     private fun observer() {
-        mainViewModel.allHabits.observe(viewLifecycleOwner) { habitItems ->
+        mainViewModel.habitItems.observe(viewLifecycleOwner) { habitItems ->
             adapter.submitList(habitItems) //25 здесь нужно обновлять adapter, который будет привязан к recycler view данного фрагмента //25 и здесь будет появляться новый элемент, редактироваться или удаляться, если удаляем //27 it - новый список, который пришел
-            items.addAll(habitItems)
+            //items.addAll(habitItems)
             binding.tvEmptyHabits.visibility = if (habitItems.isEmpty()) { //37 если список пустой
                 View.VISIBLE //37 нужно показать tvEmptyHabits (написано слово Empty)
             } else { //37 если список не пустой
                 View.GONE //37 то спрятать textView
             }
 
-            if (!IS_HABITS_RESET) {
+            /*if (!IS_HABITS_RESET) {
                 val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
                 habitItems.forEach {
                     if (it.checkedHabitDay != today) {
@@ -132,7 +133,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
                 }
 
                 IS_HABITS_RESET = true
-            } //если открыли приложение
+            } //если открыли приложение*/
 
         } //25 нужно добавлять recycler view, adapter //25 и разметку для отдельного элемента, с помощью которого будем заполнять этот список //25 в разметке - название, время, прогресс бар (сколько задач выполнено и сколько осталось) //25 и счетчик - сколько задач выполнено и сколько задач в списке //25 когда все задачи выполнены, прогрес бар становится зеленым //25 тогда сможем смотреть как работает список
     }
@@ -179,6 +180,20 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
                 startActivity(i)
             }
         }
+    }
+
+    override fun saveToCheckedEntity(habitNameItem: MainViewModel.HabitItemModel) {
+       mainViewModel.insertChecked(habitNameItem)
+    }
+
+    override fun deleteFromCheckedEntity(habitNameItem: MainViewModel.HabitItemModel) {
+        habitNameItem.checkId?.let { checkId ->
+            mainViewModel.deleteCheckedItem(checkId)
+        }
+    }
+
+    fun onItemCheckChanged(habitCheckedItem: HabitCheckedItem) {
+        mainViewModel.onItemCheckChanged(habitCheckedItem)
     }
 
     companion object {
