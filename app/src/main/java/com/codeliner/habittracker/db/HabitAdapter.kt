@@ -22,7 +22,7 @@ class HabitAdapter(
     private val listener: Listener, // нужно передать в setData
     //TODO: передать checkedListener для сохранения данных в таблицу HabitCheckedItem
     //private val checkedlistener: CheckedListener
-    ): ListAdapter<HabitNameItem, HabitAdapter.ItemHolder>(ItemComparator()) {
+    ): ListAdapter<MainViewModel.HabitItemModel, HabitAdapter.ItemHolder>(ItemComparator()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemHolder {
@@ -32,7 +32,6 @@ class HabitAdapter(
 
     override fun onBindViewHolder(holder: ItemHolder, position: Int) {
         holder.setData(getItem(position), listener) // listener присваивается каждому элементу
-
     }
 
 
@@ -41,123 +40,86 @@ class HabitAdapter(
         private val binding = HabitNameItemBinding.bind(view)
 
 
-        fun setData(habitNameItem: HabitNameItem, listener: Listener) = with(binding) {
+        fun setData(habitNameItem: MainViewModel.HabitItemModel, listener: Listener) = with(binding) {
 
             tvHabitName.text = habitNameItem.name //получаем доступ к элементам
-            tvTime.text = habitNameItem.time
+            //tvTime.text = habitNameItem.time
 
-            pBar.max = habitNameItem.allItemCounter//48 максимальный прогресс прогрессбара - это всего задач
-            pBar.progress = habitNameItem.checkedItemsCounter //48 на сколько мы продвинулись, сколько раз выполнили
+            //pBar.max = habitNameItem.allItemCounter//48 максимальный прогресс прогрессбара - это всего задач
+            //pBar.progress = habitNameItem.checkedItemsCounter //48 на сколько мы продвинулись, сколько раз выполнили
             val colorState = ColorStateList.valueOf(getProgressColorState(habitNameItem, binding.root.context))
             pBar.progressTintList = colorState //48 tintList принимает colorState
             counterCard.backgroundTintList = colorState //48 цвет счетчика меняется в зависимости все или нет задачи выполнили
 
-            val counterText = "${habitNameItem.checkedHabitCounter}/${habitNameItem.planDaysPerWeek}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
+            val counterText = "${habitNameItem.lastWeekCheckCount}/${habitNameItem.targetWeekCheckCount}"//48 текст нужно составлять из разных частей, поэтому создадим отдельную переменную
             tvCounter.text = counterText
 
+            // TODO: переходить на экран задач при нажатии на item
             itemView.setOnClickListener {
-                listener.onClickItem(habitNameItem, NAME) //будет открываться список задач
+                //listener.onClickItem(habitNameItem, NAME) //будет открываться список задач
             } //itemView - при нажатии открыть список
 
+            // TODO: открывать диалог редактирования привычки при нажатии кнопки Редактировать
+            ibEdit.setOnClickListener {
+                //listener.editItem(habitNameItem) //29 передается весь элемент
+            }
+
             ibDelete.setOnClickListener{ //28 если нажмем на кнопку Удалить, запускается слушатель,
-                listener.deleteItem(habitNameItem.id!!) // который возвращает от каждого элемента идентификатор
+                listener.deleteItem(habitNameItem.id) // который возвращает от каждого элемента идентификатор
             } //28 и по этому идентификатору мы можем удалить из БД данный элемент
 
-            chBoxHabit.isChecked = habitNameItem.habitChecked
+            chBoxHabit.isChecked = habitNameItem.isChecked
             setPaintFlagAndColor(binding) //39 запускаем функцию перечеркивания текста один раз, когда обновляется адаптер
 
-
             chBoxHabit.setOnClickListener {
-
-                if(chBoxHabit.isChecked) {
-
-                    listener.onClickItem (habitNameItem.copy(
-                        habitChecked = chBoxHabit.isChecked,
-                        time = TimeManager.getCurrentTime(),
-                        checkedHabitCounter = habitNameItem.checkedHabitCounter + 1,
-                        checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)), // DAY_OF_YEAR)-1 использовать для теста
-                        CHECK_BOX) //0322 записываем true или false
-
-                     //TODO: сохранить данные в таблицу HabitCheckedItem
-                    /*listener.saveToCheckedEntity(
-                        habitCheckedItem.copy(
-                            habitId = tvHabitName.toString(),
-                            checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-                        ),
-                    )*/
-
-                } else {
-                    listener.onClickItem (habitNameItem.copy(
-                        habitChecked = chBoxHabit.isChecked,
-                        checkedHabitCounter = habitNameItem.checkedHabitCounter - 1),
-                        CHECK_BOX) //0322 записываем true или false
-
-                    // TODO: удалить данные из таблицы HabitCheckedItem
-/*                    listener.onClickItem (habitCheckedItem.copy(
-                        habitChecked = chBoxHabit.isChecked,
-                        checkedHabitCounter = habitNameItem.checkedHabitCounter - 1),
-                        CHECK_BOX) //0322 записываем true или false*/
-
-                } // else - если непрочекано
-
-            } // chBoxHabit.setOnClickListener - слушать нажатие чекбокса выполнения привычки
-
-
-            ibEdit.setOnClickListener {
-                listener.editItem(habitNameItem) //29 передается весь элемент
-            } // при нажатии на кнопку edit запускается listener и editItem интерфейс, который нужно добавить во фрагмент
-
-        } // SetData - с помощью setdata можем заполнять разметку
-
-
-        // TODO: при нажатии на checked нужно добавить данные во вторую БД или удалить, если галочка убрана
-        fun setHabitCheckedData(habitCheckedItem: HabitCheckedItem, listener: Listener)
-            = with(binding) {
-
-            chBoxHabit.setOnClickListener {
-
                 if (chBoxHabit.isChecked) {
-
-                    listener.saveToCheckedEntity(
-                        habitCheckedItem.copy(
-                            habitId = tvHabitName.toString(),
-                            checkedHabitDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
-                        ),
-                    )
+                    listener.saveToCheckedEntity(habitNameItem)
                 } else {
+                    listener.deleteFromCheckedEntity(habitNameItem)
                     //TODO: удалить строку из таблицы HabitCheckedItem
                     //listener.deleteFromCheckedEntity(habitCheckedItem.id!!)
                 }
             }
+
+                    // TODO: удалить данные из таблицы HabitCheckedItem
+ /*                    listener.onClickItem (habitCheckedItem.copy(
+                        habitChecked = chBoxHabit.isChecked,
+                        checkedHabitCounter = habitNameItem.checkedHabitCounter - 1),
+                        CHECK_BOX) //0322 записываем true или false*//*
+
+                } // else - если непрочекано*/
+
         }
+             // при нажатии на кнопку edit запускается listener и editItem интерфейс, который нужно добавить во фрагмент
 
 
-        private fun getProgressColorState(item: HabitNameItem, context: Context): Int {
-
-            return if (item.checkedItemsCounter == item.allItemCounter) {
+        private fun getProgressColorState(item: MainViewModel.HabitItemModel, context: Context): Int {
+            // TODO: Return old logic
+            return ContextCompat.getColor(context, R.color.green_main)
+            /*return if (item.checkedItemsCounter == item.allItemCounter) {
                 ContextCompat.getColor(context, R.color.green_main) //48 если отмечены все элементы в списке, цвет зеленый
             } else {
                 ContextCompat.getColor(context, R.color.red_main) //48 цвет прогрессбара красный
-            } //48 если не все элементы отмечены
+            } //48 если не все элементы отмечены*/
 
         }  // цвет для прогрессбара, нужно применить в setData
 
 
-        private fun setPaintFlagAndColor(binding: HabitNameItemBinding) { //38 чтобы textView был перечеркнут
+        private fun setPaintFlagAndColor(binding: HabitNameItemBinding) {
             binding.apply {
 
-                if (chBoxHabit.isChecked) { //если чекбокс отмечен
-                    tvHabitName.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG //38 перечеркнуть весь текст
+                if (chBoxHabit.isChecked) {
+                    tvHabitName.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG //перечеркнуть весь текст
                     tvTime.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
-                    tvHabitName.setTextColor(ContextCompat.getColor(binding.root.context, R.color.grey_light)) //38 изменение текста на серый при отметке чекбокса
+                    tvHabitName.setTextColor(ContextCompat.getColor(binding.root.context, R.color.grey_light)) // изменение текста на серый при отметке чекбокса
                     tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.grey_light))
-                } else { //если чекбокс не отмечен
-                    tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG //38 убрать перечеркивание названия Привычки
-                    tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG //38 убрать перечеркивание времени создания Привычки
-                    tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black)) //38 изменение цвета на черный при снятии отметки чекбокса
+                } else {
+                    tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG // убрать перечеркивание названия Привычки
+                    tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG // убрать перечеркивание времени создания Привычки
+                    tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black)) // изменение цвета на черный при снятии отметки чекбокса
                     tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
                 }
-            } //38 запуск функции из setData
+            }
         }
 
 
@@ -172,13 +134,13 @@ class HabitAdapter(
     } // ItemHolder - хранится ссылка на разметку и элементы
 
 
-    class ItemComparator : DiffUtil.ItemCallback<HabitNameItem>() {
+    class ItemComparator : DiffUtil.ItemCallback<MainViewModel.HabitItemModel>() {
 
-        override fun areItemsTheSame(oldItem: HabitNameItem, newItem: HabitNameItem): Boolean {
+        override fun areItemsTheSame(oldItem: MainViewModel.HabitItemModel, newItem: MainViewModel.HabitItemModel): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: HabitNameItem, newItem: HabitNameItem): Boolean {
+        override fun areContentsTheSame(oldItem: MainViewModel.HabitItemModel, newItem: MainViewModel.HabitItemModel): Boolean {
             return oldItem == newItem
         }
     } // diffUtil - сравнивает элементы из старого и нового списков
@@ -188,18 +150,8 @@ class HabitAdapter(
         fun deleteItem(id: Int) //удаление записи из БД
         fun editItem(habitNameItem: HabitNameItem) //29 редактирование записи из БД. Передаем полностью название, потому что будем изменять
         fun onClickItem(habitNameItem: HabitNameItem, state: Int)
-        fun saveToCheckedEntity(habitCheckedItem: HabitCheckedItem)
-        fun deleteFromCheckedEntity(id: Int)
-    }
-
-
-    //TODO: реализовать интерфейс для HabitCheckedItem, чтобы записывать туда данные
-    interface CheckedListener {
-        fun deleteItem(id: Int)
-        fun editItem(habitCheckedItem: HabitCheckedItem)
-        fun onClickItem(habitCheckedItem: HabitCheckedItem, state: Int)
-        fun saveToCheckedEntity(habitCheckedItem: HabitCheckedItem)
-        fun deleteFromCheckedEntity(id: Int)
+        fun saveToCheckedEntity(habitNameItem: MainViewModel.HabitItemModel)
+        fun deleteFromCheckedEntity(habitNameItem: MainViewModel.HabitItemModel)
     }
 
 

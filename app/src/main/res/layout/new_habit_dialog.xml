@@ -44,6 +44,11 @@
                 android:hint="Days per week"
                 android:inputType="number" />
 
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/daysNumber" />
+
             <Button
                 android:id="@+id/bCreate"
                 android:layout_width="match_parent"

@@ -13,6 +13,9 @@ interface Dao {
     //HabitCheckedItem
     @Query ("SELECT * FROM habit_checked_item WHERE habitId LIKE :habitId")
     fun getAllHabitChecked(habitId: Int): Flow<List<HabitCheckedItem>>
+    //TODO: выдает ошибку - исправить
+    /*@Query ("SELECT * FROM habit_checked_item WHERE habitId LIKE :habitId")
+    suspend fun getSuspendAllHabitChecked(habitId: Int, date: Long): List<HabitCheckedItem>*/
     @Query ("DELETE FROM habit_checked_item WHERE habitId LIKE :habitId")
     suspend fun deleteCheckedByHabitId(habitId: Int)
     @Query ("DELETE FROM habit_checked_item WHERE id IS :id")
@@ -21,6 +24,13 @@ interface Dao {
     suspend fun insertCheckedItem(habitCheckedItem: HabitCheckedItem)
     @Update
     suspend fun updateCheckedItem(item: HabitCheckedItem)
+
+    @Query ("SELECT * FROM habit_checked_item")
+    fun getHabitCheckedItemsFlow(): Flow<List<HabitCheckedItem>>
+
+    @Query ("SELECT * FROM habits_list_names")
+    fun getHabitNameItemsFlow(): Flow<List<HabitNameItem>>
+
 
 
     //HabitNameItem

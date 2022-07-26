@@ -2,26 +2,75 @@ package com.codeliner.habittracker.db
 
 import androidx.lifecycle.*
 import com.codeliner.habittracker.entities.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
+import java.util.*
 
-class MainViewModel(dataBase: MainDataBase): ViewModel() { //не используем напрямую бизнес-логику, через viewmodel
+class MainViewModel(dataBase: MainDataBase): ViewModel() {
 
     val dao = dataBase.getDao()
-
+    val currentDayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR) //+1 для теста
     val libraryItems = MutableLiveData<List<LibraryItem>>()
     val taskItems = MutableLiveData<List<HabitTaskItem>>()
     val allNotes: LiveData<List<NoteItem>> = dao.getAllNotes().asLiveData() //когда NoteItem будет меняться, LiveData будет автоматически обновляться //можем прослушивать есть ли изменения в заметках и обновлять адаптер
-    val allHabits: LiveData<List<HabitNameItem>> = dao.getAllHabits().asLiveData() //25 получаем все Привычки, которые есть в БД //25 теперь можем добавить observer в live data, //25 который будет обновляться каждый раз, когда в этой таблице что-то меняется //идем в HabitsNameFragment
+    val habitItems = getHabitsItemsFlow().asLiveData()
+    val allHabits: LiveData<List<HabitNameItem>> = dao.getAllHabits().asLiveData()
+
+    data class HabitItemModel(
+        val id: Int,
+        val checkId: Int?,
+        val name: String,
+        val checksCount: Int,
+        val isChecked: Boolean,
+        val lastWeekCheckCount: Int,
+        val targetWeekCheckCount: Int
+    )
+
+    private fun getHabitsItemsFlow(): Flow<List<HabitItemModel>> {
+
+        val habitNameItemsFlow = dao.getHabitNameItemsFlow()
+        val habitCheckedItemsFlow = dao.getHabitCheckedItemsFlow()
+
+        return habitNameItemsFlow.combine(habitCheckedItemsFlow) { habitNameItems, habitCheckedItems ->
+            habitNameItems.mapNotNull { habitNameItem ->
+
+                val filteredHabitCheckedItems = habitCheckedItems.filter { it.habitId == habitNameItem.id }
+                val checkedPerWeek = filteredHabitCheckedItems.filter { it.dayOfYear > currentDayOfYear-7} //отфильтровал за неделю
+
+                habitNameItem.id?.let {
+                    HabitItemModel (
+                        id = it,
+                        checkId = filteredHabitCheckedItems.firstOrNull { it.dayOfYear == currentDayOfYear }?.id,
+                        name = habitNameItem.name,
+                        checksCount = filteredHabitCheckedItems.count(),
+                        isChecked = currentDayOfYear in filteredHabitCheckedItems.map { it.dayOfYear },
+                        lastWeekCheckCount = checkedPerWeek.count(), // посчитал выполненную привычку за неделю
+                        targetWeekCheckCount = habitNameItem.planDaysPerWeek.toInt()
+                    )
+                }
+            }
+        }
+    }
+
+    fun insertChecked (HabitItemModel: HabitItemModel) {
+        viewModelScope.launch {
+            val habitId = HabitItemModel.id
+            val checkedItem = HabitCheckedItem(
+                habitId = habitId,
+                time = Date().time,
+                dayOfYear = currentDayOfYear
+            )
+            dao.insertCheckedItem(checkedItem)
+        }
+    }
+
 
     //HabitCheckedItem
 
     fun getAllCheckedFromHabit(habitId: Int) : LiveData<List<HabitCheckedItem>> {
         return dao.getAllHabitChecked(habitId).asLiveData()
-    }
-
-    fun insertChecked (habitCheckedItem: HabitCheckedItem) = viewModelScope.launch {
-        dao.insertCheckedItem(habitCheckedItem)
     }
 
     fun updateHabitChecked(item: HabitCheckedItem) = viewModelScope.launch {
@@ -30,6 +79,10 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() { //не использ
 
     fun deleteCheckedItem(id: Int) = viewModelScope.launch {
         dao.deleteCheckedItem(id)
+    }
+
+    fun onItemCheckChanged(habitCheckedItem: HabitCheckedItem) = viewModelScope.launch {
+        // dao.onItemCheckChanged(item)
     }
 
 
@@ -94,29 +147,29 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() { //не использ
 
     //NoteItem
 
-    fun insertNote(note: NoteItem) = viewModelScope.launch { //используем корутины, чтобы записать данные на второстепенном потоке //не будет захламляться основной поток, в котором рисуетс пользовательский интерфейс
+    fun insertNote(note: NoteItem) = viewModelScope.launch {
         dao.insertNote(note)
+    } //использую корутины, чтобы записать данные на второстепенном потоке //не будет захламляться основной поток, в котором рисуется пользовательский интерфейс
+
+    fun updateNote(note: NoteItem) = viewModelScope.launch {
+        dao.updateNote(note)
     }
 
-    fun updateNote(note: NoteItem) = viewModelScope.launch { //такая же, как insert, только update
-        dao.updateNote(note)
-    } //чтобы ее использовать, нужно вернуться к NoteFragment и сделать проверку
-
-    fun deleteNote(id: Int) = viewModelScope.launch { //добавляем функцию удаления по типу insert
+    fun deleteNote(id: Int) = viewModelScope.launch {
         dao.deleteNote(id)
-    } //и остается создать функцию deleteNote в dao
+    }
 
 
-    class MainViewModelFactory(val dataBase: MainDataBase): ViewModelProvider.Factory{ //каждый раз, когда создаем ViewModel, создаем ViewModelFactory, всегда один и тот же //каждый раз, когда создаем ViewModel, создаем ViewModelFactory, всегда один и тот же
-        override fun <T : ViewModel> create(modelClass: Class<T>): T { //имплементируем функцию по умолчанию
+    class MainViewModelFactory(val dataBase: MainDataBase): ViewModelProvider.Factory{
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
                 return MainViewModel(dataBase) as T //инициализируем MainViewModel
             }
             throw IllegalArgumentException("Unknown ViewModelClass")
         }
-    }
+    } //каждый раз, когда создаем ViewModel, создаем ViewModelFactory, всегда один и тот же
 
 
-} //дальше инициализация в Fragment
+}
 
