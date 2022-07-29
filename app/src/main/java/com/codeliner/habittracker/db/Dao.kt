@@ -1,9 +1,7 @@
 package com.codeliner.habittracker.db
 
+import androidx.room.*
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
 import com.codeliner.habittracker.entities.*
 import kotlinx.coroutines.flow.Flow
 
@@ -38,10 +36,12 @@ interface Dao {
     fun getAllHabits(): Flow<List<HabitNameItem>> //25 и выдать их, после чего описываем функцию в MainViewModel
     @Query ("DELETE FROM habits_list_names WHERE id IS :id")
     suspend fun deleteHabitName(id: Int)
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHabit(nameItem: HabitNameItem) //25 функцию запускаем,естественно, не напрямую, а через ViewModel в MainViewModel
     @Update
     suspend fun updateHabitName(habitNameItem: HabitNameItem)
+    @Query ("UPDATE habits_list_names SET name = :name, planDaysPerWeek = :planDaysPerWeek WHERE id = :id")
+    suspend fun updateHabit(id: Int, name: String, planDaysPerWeek: Int)
 
 
     //HabitTaskItem

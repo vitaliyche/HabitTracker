@@ -1,5 +1,6 @@
 package com.codeliner.habittracker.activities
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -180,12 +181,18 @@ class HabitActivity : AppCompatActivity(), HabitTaskAdapter.Listener {
         }
     }
 
-    private fun initHAC() { //30 будем получать из интента HabitName, чтобы узнать какую привычку мы открыли
-        habitNameItemHAC = intent.getSerializableExtra(HABIT_NAME_HAC) as HabitNameItem //30 будем передавать целый класс
-    }
+    private fun initHAC() {
+        habitNameItemHAC = intent.getSerializableExtra(HABIT_NAME_HAC) as HabitNameItem?
+    } // получить из интента HabitName, чтобы узнать какая привычка открыта
 
     companion object{
-        const val HABIT_NAME_HAC = "habit_name" //30 добавляем константу, которую будем передавать
+        private const val HABIT_NAME_HAC = "habit_name" //30 добавляем константу, которую будем передавать
+
+        fun getNewIntent(activity: Activity, id: Int): Intent {
+            return Intent(activity, HabitActivity::class.java).apply {
+                putExtra(HABIT_NAME_HAC, id)
+            }
+        }
     }
 
     override fun onClickItem(habitTaskItem: HabitTaskItem, state: Int) {
@@ -237,7 +244,7 @@ class HabitActivity : AppCompatActivity(), HabitTaskAdapter.Listener {
             //220316 нужно заменить на сколько раз выполнено в неделю. пока 0 или 1
             checkedItemsCounter = checkedItemCounter
         )
-        mainViewModelHAC.updateHabitName(tempTaskItem!!)
+        //mainViewModelHAC.updateHabitName(tempTaskItem!!)
     }
 
     override fun onBackPressed() { //48 как только рещили выйти из задач, нужно отследить нажатие кнопки назад

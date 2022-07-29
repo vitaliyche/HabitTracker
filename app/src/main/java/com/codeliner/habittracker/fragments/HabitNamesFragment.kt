@@ -40,7 +40,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
         NewHabitDialog.showDialog(activity as AppCompatActivity, object : NewHabitDialog.Listener {
             override fun onClick(
                 name: String,
-                days: String
+                days: Int
             ) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
                 val habitName = HabitNameItem( //25 когда нажали на кнопку, прежде чем сохранить HabitName класс, // его нужно заполнить как в HabitsListItem
                         null,
@@ -48,7 +48,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
                         name,
                         TimeManager.getCurrentTime(),
                         0, //сколько задач добавлено уже в привычку. так как только создали, то 0
-                        days, //сколько задач уже выполнено
+                        days.toString(), //сколько задач уже выполнено
                         0,
                         0,
                         0, //Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
@@ -56,7 +56,7 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
                     )
                 mainViewModel.insertHabit(habitName) //делаем insert //25 теперь как все запускаем, нажимаем сохранить и все сохраняется в БД
             } //25 еще нужно, чтобы мы могли их видеть в фрагменте //25 через observer, который будет следить за изменениями в БД и считывать через MainViewModel
-        }, "", "") //29 при создании новой привычки, передаем пустоту
+        }, "", 0) //29 при создании новой привычки, передаем пустоту
     } //25 для записи в БД нужно записать insert функцию в Dao
 
     private var simplecallback = object : ItemTouchHelper.SimpleCallback(
@@ -149,37 +149,30 @@ class HabitNamesFragment : BaseFragment(), //24 копируем класс из
             }) //28 который спрашивает хотим ли мы на самом деле удалить
     } //28 если жмем на кнопку Да, то запускается onClick и запускается удаление элемента
 
-    override fun editItem(habitNameItem: HabitNameItem) { //29 делаем по аналогии с onClickNew
+    // при нажатии на кнопку Редактировать
+    override fun editItem(habitNameItem: MainViewModel.HabitItemModel) {
         NewHabitDialog.showDialog(
             activity as AppCompatActivity,
             object : NewHabitDialog.Listener {
                 override fun onClick(
                     name: String,
-                    days: String
-                ) { //24 имплементируем функцию onClick - возвращает имя, которое вписал пользователь
+                    days: Int
+                ) {
                     mainViewModel.updateHabitName(
                         habitNameItem.copy(
                             name = name,
-                            planDaysPerWeek = days
+                            targetWeekCheckCount = days
                         )
                     ) //перезаписываем название, если пользователь изменил его и нажал кнопку Обновить
                 }
             },
             habitNameItem.name,
-            habitNameItem.planDaysPerWeek
+            habitNameItem.targetWeekCheckCount
         ) //29 когда обновляем, передаем название, которое было
     }
 
-    override fun onClickItem(habitNameItem: HabitNameItem, state: Int) {
-        when (state) { //220315 проверить на какой элемент строки нажали
-            HabitAdapter.CHECK_BOX -> mainViewModel.updateHabitName(habitNameItem) //220315 записать значение в БД
-            HabitAdapter.NAME -> { //220315 если нажали на название Привычки
-                val i = Intent(activity, HabitActivity::class.java).apply {
-                    putExtra(HabitActivity.HABIT_NAME_HAC, habitNameItem)
-                }
-                startActivity(i)
-            }
-        }
+    override fun onClickItem(habitNameItem: MainViewModel.HabitItemModel, state: Int) {
+        startActivity(HabitActivity.getNewIntent(requireActivity(), id = habitNameItem.id))
     }
 
     override fun saveToCheckedEntity(habitNameItem: MainViewModel.HabitItemModel) {

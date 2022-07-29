@@ -7,7 +7,8 @@ import java.io.Serializable
 
 @Entity (tableName = "habits_list_names")
 data class  HabitNameItem(
-    @PrimaryKey (autoGenerate = true)
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo (name = "id")
     val id: Int?,
     @ColumnInfo (name = "habitChecked")
     var habitChecked: Boolean = false,

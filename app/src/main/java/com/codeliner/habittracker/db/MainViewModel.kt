@@ -18,6 +18,9 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() {
     val habitItems = getHabitsItemsFlow().asLiveData()
     val allHabits: LiveData<List<HabitNameItem>> = dao.getAllHabits().asLiveData()
 
+
+    // Habit Item Model
+
     data class HabitItemModel(
         val id: Int,
         val checkId: Int?,
@@ -66,6 +69,14 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() {
         }
     }
 
+    fun updateHabitName(habitNameItem: HabitItemModel) = viewModelScope.launch {
+        dao.updateHabit(
+            id = habitNameItem.id,
+            name = habitNameItem.name,
+            planDaysPerWeek = habitNameItem.targetWeekCheckCount
+        )
+    }
+
 
     //HabitCheckedItem
 
@@ -91,10 +102,6 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() {
     fun insertHabit(habitNameItem: HabitNameItem) = viewModelScope.launch { //25 функцию insert можем использовать через HabitNamesFragment
         dao.insertHabit(habitNameItem)
     }
-
-    fun updateHabitName(habitNameItem: HabitNameItem) = viewModelScope.launch {
-        dao.updateHabitName(habitNameItem)
-    } //после view model делаем кнопку в адаптере
 
     fun deleteHabit(id: Int, deleteHabit: Boolean) = viewModelScope.launch { //эту функцию уже можем запускать из нашего фрагмента
         if(deleteHabit) dao.deleteHabitName(id) //удаляем привычку

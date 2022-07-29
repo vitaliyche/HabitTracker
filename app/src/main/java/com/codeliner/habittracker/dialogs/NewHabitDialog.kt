@@ -7,7 +7,7 @@ import com.codeliner.habittracker.R
 import com.codeliner.habittracker.databinding.NewHabitDialogBinding
 
 object NewHabitDialog { //23 object - чтобы запускался без инициализации
-    fun showDialog(context: Context, listener: Listener, name: String, days: String) { //23 диалог запускаем при нажатии на кнопку New //29 добавляем name, чтобы в одной функции было New и Edit
+    fun showDialog(context: Context, listener: Listener, name: String, days: Int) { //23 диалог запускаем при нажатии на кнопку New //29 добавляем name, чтобы в одной функции было New и Edit
         var dialog: AlertDialog? = null
         val builder = AlertDialog.Builder(context)
         val binding = NewHabitDialogBinding.inflate(LayoutInflater.from(context)) //23 в binding будут все наши элементы: editText и кнопка
@@ -15,13 +15,13 @@ object NewHabitDialog { //23 object - чтобы запускался без и�
         binding.apply { //23 присваиваем слушатель нажатий на нашу кнопку
             edNewHabitName.setText(name) //29 если name пустой (New), то передается пустота. Иначе(edit) - передается name //чтобы при нажатии edit поле было не пустым
             //2203 если поле дней пустое, то передаем пустоту, иначе (edit) - передаем days
-            edDaysPerWeek.setText(days)
+            edDaysPerWeek.setText(days.toString())
             if (name.isNotEmpty()) bCreate.text = context.getString(R.string.update) //29 если имя не пустое, значит пишем Обновить (вместо Создать)
             if (name.isNotEmpty()) tvTitleNewHabitDialog.text = context.getString(R.string.edit_habit_strings)
 
             bCreate.setOnClickListener {
                 val habitName = edNewHabitName.text.toString() //23 проверяем, что текст habit name не пустой
-                val planDays = edDaysPerWeek.text.toString()
+                val planDays = edDaysPerWeek.text.toString().toIntOrNull() ?: 0
                 //val daysPerWeek: Int = edDaysPerWeek.text[2].digitToInt()//220316 проверяем, что поле daysPerWeek не пустое
                 if (habitName.isNotEmpty()) {
                     listener.onClick(habitName, planDays) //23 запускаем интерфейс, который передает название на MainActivity //23 и уже в мэйн активити записываем через вьюмодел класс в интерфейс дао и в БД
@@ -35,6 +35,6 @@ object NewHabitDialog { //23 object - чтобы запускался без и�
 
     }
     interface Listener {
-        fun onClick(name: String, days: String) //220316 передаем параметры привычки в MainActivity
+        fun onClick(name: String, days: Int) //220316 передаем параметры привычки в MainActivity
     }
 }

@@ -39,6 +39,9 @@ class HabitAdapter(
 
         private val binding = HabitNameItemBinding.bind(view)
 
+        fun setHabitNameItemData(habitNameItem: HabitNameItem, listener: Listener) {
+
+        }
 
         fun setData(habitNameItem: MainViewModel.HabitItemModel, listener: Listener) = with(binding) {
 
@@ -56,17 +59,16 @@ class HabitAdapter(
 
             // TODO: переходить на экран задач при нажатии на item
             itemView.setOnClickListener {
-                //listener.onClickItem(habitNameItem, NAME) //будет открываться список задач
+                listener.onClickItem(habitNameItem, NAME) //будет открываться список задач
             } //itemView - при нажатии открыть список
 
-            // TODO: открывать диалог редактирования привычки при нажатии кнопки Редактировать
             ibEdit.setOnClickListener {
-                //listener.editItem(habitNameItem) //29 передается весь элемент
+                listener.editItem(habitNameItem) //29 передается весь элемент
             }
 
-            ibDelete.setOnClickListener{ //28 если нажмем на кнопку Удалить, запускается слушатель,
-                listener.deleteItem(habitNameItem.id) // который возвращает от каждого элемента идентификатор
-            } //28 и по этому идентификатору мы можем удалить из БД данный элемент
+            ibDelete.setOnClickListener {
+                listener.deleteItem(habitNameItem.id) // возвращает от каждого элемента идентификатор
+            }
 
             chBoxHabit.isChecked = habitNameItem.isChecked
             setPaintFlagAndColor(binding) //39 запускаем функцию перечеркивания текста один раз, когда обновляется адаптер
@@ -147,9 +149,9 @@ class HabitAdapter(
 
 
     interface Listener {
-        fun deleteItem(id: Int) //удаление записи из БД
-        fun editItem(habitNameItem: HabitNameItem) //29 редактирование записи из БД. Передаем полностью название, потому что будем изменять
-        fun onClickItem(habitNameItem: HabitNameItem, state: Int)
+        fun deleteItem(id: Int) // функция определена во фрагменте
+        fun editItem(habitNameItem: MainViewModel.HabitItemModel) //29 редактирование записи из БД. Передаем полностью название, потому что будем изменять
+        fun onClickItem(habitNameItem: MainViewModel.HabitItemModel, state: Int)
         fun saveToCheckedEntity(habitNameItem: MainViewModel.HabitItemModel)
         fun deleteFromCheckedEntity(habitNameItem: MainViewModel.HabitItemModel)
     }
