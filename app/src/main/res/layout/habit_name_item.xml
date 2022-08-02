@@ -56,12 +56,13 @@
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
+                        <!-- Установить последнюю дату выполненной привычки в формате Вторник, 02 Август
                         <TextView
                             android:id="@+id/tvTime"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="TextView"
-                            android:textSize="12sp" />
+                            android:textSize="12sp" />-->
 
                     </LinearLayout>
 

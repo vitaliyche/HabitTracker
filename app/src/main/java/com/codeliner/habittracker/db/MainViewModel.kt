@@ -2,6 +2,7 @@ package com.codeliner.habittracker.db
 
 import androidx.lifecycle.*
 import com.codeliner.habittracker.entities.*
+import com.codeliner.habittracker.utils.TimeManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -28,7 +29,8 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() {
         val checksCount: Int,
         val isChecked: Boolean,
         val lastWeekCheckCount: Int,
-        val targetWeekCheckCount: Int
+        val targetWeekCheckCount: Int,
+        val lastCheckedDate: Int?
     )
 
     private fun getHabitsItemsFlow(): Flow<List<HabitItemModel>> {
@@ -50,7 +52,8 @@ class MainViewModel(dataBase: MainDataBase): ViewModel() {
                         checksCount = filteredHabitCheckedItems.count(),
                         isChecked = currentDayOfYear in filteredHabitCheckedItems.map { it.dayOfYear },
                         lastWeekCheckCount = checkedPerWeek.count(), // посчитал выполненную привычку за неделю
-                        targetWeekCheckCount = habitNameItem.planDaysPerWeek.toInt()
+                        targetWeekCheckCount = habitNameItem.planDaysPerWeek.toInt(),
+                        lastCheckedDate = filteredHabitCheckedItems.firstOrNull { it.dayOfYear == currentDayOfYear }?.dayOfYear
                     )
                 }
             }

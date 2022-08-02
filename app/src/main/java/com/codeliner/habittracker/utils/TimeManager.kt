@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object TimeManager {
-    const val DEF_TIME_FORMAT = "EEEE, dd LLLL"//"hh:mm:ss - yyyy/MM/dd" //53 формат времени по умолчанию
+    const val DEF_TIME_FORMAT = "EEEE, dd LLLL" //53 формат времени по умолчанию
     fun getCurrentTime(): String { //получаем текущее время, которое установлено на смартфоне
         val formatter = SimpleDateFormat(DEF_TIME_FORMAT, Locale.getDefault()) //указываем формат времени и страну
         return formatter.format(Calendar.getInstance().time) //заменяем символы на реальное время, время берем из календаря

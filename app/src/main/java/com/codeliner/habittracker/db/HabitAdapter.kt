@@ -46,7 +46,8 @@ class HabitAdapter(
         fun setData(habitNameItem: MainViewModel.HabitItemModel, listener: Listener) = with(binding) {
 
             tvHabitName.text = habitNameItem.name //получаем доступ к элементам
-            //tvTime.text = habitNameItem.time
+            // TODO: установить последнюю дату отмеченной привычки
+            //tvTime.text = habitNameItem.lastCheckedDate.toString()
 
             //pBar.max = habitNameItem.allItemCounter//48 максимальный прогресс прогрессбара - это всего задач
             //pBar.progress = habitNameItem.checkedItemsCounter //48 на сколько мы продвинулись, сколько раз выполнили
@@ -58,10 +59,11 @@ class HabitAdapter(
             tvCounter.text = counterText
 
             // TODO: переходить на экран задач при нажатии на item
-            itemView.setOnClickListener {
+            /*itemView.setOnClickListener {
                 listener.onClickItem(habitNameItem, NAME) //будет открываться список задач
-            } //itemView - при нажатии открыть список
+            } //itemView - при нажатии открыть список*/
 
+            // TODO: открывать диалог редактирования привычки при нажатии кнопки Редактировать
             ibEdit.setOnClickListener {
                 listener.editItem(habitNameItem) //29 передается весь элемент
             }
@@ -112,18 +114,18 @@ class HabitAdapter(
 
                 if (chBoxHabit.isChecked) {
                     tvHabitName.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG //перечеркнуть весь текст
-                    tvTime.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+                    // TODO: раскомментить, когда будет выведена дата последнего выполнения привычки
+                    //tvTime.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
                     tvHabitName.setTextColor(ContextCompat.getColor(binding.root.context, R.color.grey_light)) // изменение текста на серый при отметке чекбокса
-                    tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.grey_light))
+                    //tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.grey_light))
                 } else {
-                    tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG // убрать перечеркивание названия Привычки
-                    tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG // убрать перечеркивание времени создания Привычки
-                    tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black)) // изменение цвета на черный при снятии отметки чекбокса
-                    tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
+                    //tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG // убрать перечеркивание названия Привычки
+                    //tvTime.paintFlags = Paint.ANTI_ALIAS_FLAG // убрать перечеркивание времени создания Привычки
+                    //tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black)) // изменение цвета на черный при снятии отметки чекбокса
+                    //tvTime.setTextColor(ContextCompat.getColor(binding.root.context, R.color.black))
                 }
             }
         }
-
 
         companion object {
             fun create(parent: ViewGroup): ItemHolder{
